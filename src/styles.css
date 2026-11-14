@@ -390,7 +390,7 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--p
 .badge-ok { background: color-mix(in srgb, var(--ok) 16%, transparent); color: var(--ok); font-weight: 600; }
 .badge-no { background: var(--bg); color: var(--muted); }
 .step-grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
-@media (max-width: 560px) { .step-grid { grid-template-columns: 1fr 1fr; gap: 0 10px; } .stepper { grid-template-columns: 34px 1fr 34px !important; } }
+@media (max-width: 560px) { .step-grid { grid-template-columns: 1fr 1fr; gap: 10px; } .stepper { grid-template-columns: 34px 1fr 34px !important; } .spec-grid > .field:has(.hm) { grid-column: 1 / -1; } }
 .stepper { display: grid; grid-template-columns: 40px 1fr 40px; }
 .stepper input { border-radius: 0; text-align: center; padding: 9px 4px; -moz-appearance: textfield; appearance: textfield; }
 .stepper input::-webkit-outer-spin-button, .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
@@ -434,6 +434,31 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--p
 .tool-off svg { width: 44px; height: 44px; color: var(--pri); }
 .tool-off h2 { margin: 8px 0; }
 .tool-off .btn { margin-top: 16px; }
+
+/* every field inside a form card is its own small tile, tinted with the card's colour */
+.spec-grid { gap: 12px; align-items: stretch; }
+.spec-grid > .field {
+  --t: var(--tone, var(--pri));
+  margin: 0; padding: 10px 12px 12px; border-radius: 12px;
+  background: color-mix(in srgb, var(--t) 6%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--t) 20%, var(--line));
+  display: flex; flex-direction: column; justify-content: space-between;
+  transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s, transform 0.15s;
+}
+.spec-grid > .field > span {
+  display: flex; align-items: center; gap: 7px; margin-bottom: 8px;
+  font-size: 0.86rem; font-weight: 600; line-height: 1.3;
+  color: color-mix(in srgb, var(--t) 60%, var(--ink));
+}
+.spec-grid > .field > span::before { content: ''; flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--t); }
+.spec-grid > .field input, .spec-grid > .field .stepper button { background: var(--surface); }
+.spec-grid > .field:hover { border-color: color-mix(in srgb, var(--t) 45%, var(--line)); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(20, 24, 40, 0.06); }
+.spec-grid > .field:focus-within { border-color: var(--t); background: var(--surface); box-shadow: 0 0 0 3px color-mix(in srgb, var(--t) 16%, transparent); transform: none; }
+.spec-grid > .field.filled { background: color-mix(in srgb, var(--ok) 8%, var(--surface)); border-color: color-mix(in srgb, var(--ok) 45%, var(--line)); }
+.spec-grid > .field.filled > span { color: var(--ok); }
+.spec-grid > .field.filled > span::before { background: var(--ok); }
+.spec-grid > .field.filled > span::after { content: '✓'; margin-left: auto; font-size: 0.8rem; color: #fff; background: var(--ok); width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; animation: pop 0.22s ease-out; }
+.spec-grid > .field .hm em { font-weight: 600; color: color-mix(in srgb, var(--t) 55%, var(--muted)); }
 
 /* ---------- A4 print sheet (always light, fixed size) ---------- */
 .sheet-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
