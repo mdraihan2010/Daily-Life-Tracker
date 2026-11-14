@@ -43,3 +43,7 @@ export const fmtTime = (t, lang) => {
   if (lang === 'bn') return `${BN_PART(h)} ${num(h12, 'bn')}:${[...mm].map((c) => num(c, 'bn')).join('')}`;
   return `${h12}:${mm} ${h < 12 ? 'AM' : 'PM'}`;
 };
+
+// first day of the week that contains date `s`; ws = 0 (Sunday) ... 6 (Saturday)
+export const weekStart = (s, ws = 6) => addDays(s, -((parse(s).getDay() - ws + 7) % 7));
+export const daysBetween = (a, b) => Math.round((parse(b) - parse(a)) / 864e5);

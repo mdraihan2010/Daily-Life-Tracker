@@ -8,11 +8,16 @@ const KEY = 'dlt:v1';
 
 export const blank = () => ({
   v: 1,
-  profile: { name: '', persona: '', org: '', detail: '', lang: 'bn', theme: 'light', onboarded: false },
+  profile: { name: '', persona: '', org: '', detail: '', lang: 'bn', theme: 'light', weekStart: 6, onboarded: false },
   planner: {}, // { '2026-11-14': day }
   routine: [], // [{ id, start, end, title, cat }]
   habits: { title: '', start: today(), days: 30, reward: '', list: [], ticks: {} },
   money: {}, // { '2026-11': month }
+  weeks: {}, // { '2026-11-14' (week start): { focus, tasks: [{ id, day, text, done }], note } }
+  events: [], // [{ id, date, title, type }]
+  monthNotes: {}, // { '2026-11': 'text' }
+  projects: [], // [{ id, name, goal, start, deadline, steps: [{ id, text, due, done }], notes }]
+  goals: {}, // { 2026: { word, list: [{ id, title, area, by, why, steps: [{ text, done }] }], months: {} } }
 });
 
 const load = () => {

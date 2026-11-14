@@ -4,7 +4,7 @@ A free, offline-first life tracker for everyone: school students (Class 1–12),
 
 Plan your day, build habits, keep a routine and track money. Every page can also be downloaded as a **PNG**, a **PDF (A4)** or **printed**.
 
-## Features (Phase 1 – Core MVP)
+## Features
 
 | Page | What it does |
 |------|--------------|
@@ -14,6 +14,10 @@ Plan your day, build habits, keep a routine and track money. Every page can also
 | Routine | 24-hour routine with a clock chart and time per category. |
 | Habit tracker | 7 / 21 / 30-day challenge, tick habits each day, streak counter. |
 | Money tracker | Monthly income, spending by category, budget and savings goal. |
+| Goal planner | Yearly goals by area, 3 steps each, word of the year, month-by-month focus. |
+| Weekly planner | Seven days of tasks on one page, with a weekly focus and notes. |
+| Monthly calendar | Exams, meetings, bills and birthdays, colour-coded. Week can start on Saturday, Sunday or Monday. |
+| Project/Exam planner | Countdown to a deadline, steps with due dates, progress and timeline. Several plans at once. |
 | Settings | Bangla / English, light / dark, backup and restore, erase all. |
 
 - **Bangla + English** – switch any time from Settings.
@@ -54,6 +58,6 @@ Add one line in `src/i18n.js`: `my_key: ['বাংলা লেখা', 'Englis
 
 ## Roadmap
 
-- **Phase 2 – more tools:** goal planner, weekly planner, monthly calendar, project/exam planner, savings & debt, mood & sleep, journal, books & learning, guideline page.
+- **Phase 2 (remaining tools):** savings & debt, mood & sleep, journal, books & learning, guideline page.
 - **Phase 3 – accounts:** login + cloud sync (Node/Express + MongoDB). The whole user state is already one JSON object (`store.jsx`), so sync only needs to upload and download that object.
 - **Phase 4:** reminders/notifications, Play Store package.
