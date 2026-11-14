@@ -452,7 +452,7 @@ export function reportStatus(data, todayIso) {
   const T = totals(m.days, count);
   const rows = track(m.plan, T, count, elapsedDays(ym, count, todayIso));
   const d = m.days[Number(todayIso.slice(8))];
-  return { behind: rows.filter((r) => r.behind).length, todayDone: !!d && Object.keys(d).length > 0, hasPlan: Object.keys(m.plan).length > 0 };
+  return { behind: rows.filter((r) => r.behind).length, todayDone: !!d && Object.keys(d).length > 0, hasPlan: Object.keys(m.plan).length > 0, parts: dayParts(d) };
 }
 
 // ---- the printed daily table, laid out like the paper report book ----
@@ -502,4 +502,19 @@ export function bookTotal(days, count) {
     }
   }
   return sum;
+}
+
+// how many of the 7 parts of a day's report have something written (0-7)
+export function dayParts(d) {
+  if (!d) return 0;
+  const groups = [
+    DAY_STUDY.map((f) => f.k),
+    DAY_CLASS.map((f) => f.k),
+    ['nz', 'jam', 'kaza'],
+    DAY_ORG.map((f) => f.k),
+    DAY_CHECKS.map(([k]) => k),
+    CONTACTS.map(([k]) => 'ct_' + k),
+    DIST.map(([k]) => 'ds_' + k),
+  ];
+  return groups.filter((g) => g.some((k) => d[k] !== undefined)).length;
 }

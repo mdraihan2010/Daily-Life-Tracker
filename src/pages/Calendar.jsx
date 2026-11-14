@@ -15,7 +15,8 @@ function MonthGrid({ ym, ws, events, lang, N }) {
     <div className="cal">
       {cells.slice(0, 7).map((d) => (
         <div className="cal-h" key={d}>
-          {parse(d).toLocaleDateString(loc(lang), { weekday: 'short' })}
+          <span className="wd-long">{parse(d).toLocaleDateString(loc(lang), { weekday: 'long' })}</span>
+          <span className="wd-short">{parse(d).toLocaleDateString(loc(lang), { weekday: 'short' })}</span>
         </div>
       ))}
       {cells.map((d) => (
