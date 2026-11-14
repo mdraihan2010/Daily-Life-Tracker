@@ -15,7 +15,6 @@ export default function Sheet({ title, sub, file, children, pages, landscape, co
   const p = data.profile;
   const list = pages || [{ sub, body: children }];
   const nodes = () => refs.current.slice(0, list.length);
-  const fileOf = (k) => (list.length > 1 ? `${file}-${k + 1}` : file);
   // paper size in mm, as [width, height]
   const paper = landscape ? [297, 210] : [210, 297];
 
@@ -32,16 +31,43 @@ export default function Sheet({ title, sub, file, children, pages, landscape, co
     }
   };
 
-  // one PNG file per page
+  // One PNG file. Several pages are stacked one under another in the same picture,
+  // because browsers often block a second automatic download.
   const png = () =>
     run(async () => {
-      for (const [k, el] of nodes().entries()) {
-        const a = document.createElement('a');
-        a.href = await toPng(el);
-        a.download = fileOf(k) + '.png';
-        a.click();
-        await new Promise((r) => setTimeout(r, 250)); // browsers drop downloads fired in the same instant
+      const urls = [];
+      for (const el of nodes()) urls.push(await toPng(el));
+      let url = urls[0];
+      if (urls.length > 1) {
+        const imgs = await Promise.all(
+          urls.map(
+            (u) =>
+              new Promise((ok, fail) => {
+                const im = new Image();
+                im.onload = () => ok(im);
+                im.onerror = fail;
+                im.src = u;
+              })
+          )
+        );
+        const gap = 40;
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(...imgs.map((im) => im.width));
+        canvas.height = imgs.reduce((h, im) => h + im.height, 0) + gap * (imgs.length - 1);
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        let y = 0;
+        for (const im of imgs) {
+          ctx.drawImage(im, 0, y);
+          y += im.height + gap;
+        }
+        url = canvas.toDataURL('image/png');
       }
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file + '.png';
+      a.click();
     });
 
   // one PDF file, one page per sheet
