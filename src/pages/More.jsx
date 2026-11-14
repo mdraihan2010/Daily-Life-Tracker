@@ -1,4 +1,4 @@
-import { useApp } from '../store.jsx';
+import { useApp, toolOn } from '../store.jsx';
 import { GROUPS, Icon } from '../App.jsx';
 import { PageHead } from '../components/ui.jsx';
 
@@ -50,23 +50,30 @@ const Tool = ({ k, t }) => (
 
 export default function More() {
   const { t, data } = useApp();
+  const on = (k) => toolOn(data.profile, k);
   return (
     <>
       <PageHead title={t('nav_more')} sub={t('more_sub')} />
       <div className="tools">
-        <Tool k="guide" t={t} />
+        {on('guide') && <Tool k="guide" t={t} />}
         <Tool k="settings" t={t} />
       </div>
-      {GROUPS.filter(([label]) => label).map(([label, keys]) => (
-        <section key={label}>
-          <h3 className="group-title">{t(label)}</h3>
-          <div className="tools">
-            {keys.filter((k) => k !== 'report' || data.profile.reportBook).map((k) => (
-              <Tool key={k} k={k} t={t} />
-            ))}
-          </div>
-        </section>
-      ))}
+      {GROUPS.filter(([label]) => label)
+        .map(([label, keys]) => [label, keys.filter(on)])
+        .filter(([, keys]) => keys.length)
+        .map(([label, keys]) => (
+          <section key={label}>
+            <h3 className="group-title">{t(label)}</h3>
+            <div className="tools">
+              {keys.map((k) => (
+                <Tool key={k} k={k} t={t} />
+              ))}
+            </div>
+          </section>
+        ))}
+      <p className="muted">
+        <a href="#settings">{t('more_manage')}</a>
+      </p>
     </>
   );
 }

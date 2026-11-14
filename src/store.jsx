@@ -62,6 +62,23 @@ export const streak = (ticks, id) => {
   return n;
 };
 
+// Tools the user can switch on or off in Settings (Home, All tools and Settings are always on).
+export const TOOLS = ['guide', 'daily', 'routine', 'habits', 'goals', 'weekly', 'calendar', 'project', 'money', 'savings', 'mood', 'journal', 'books', 'report'];
+// Every tool is on by default, except the report book which is on only after the user turns it on.
+export const toolOn = (profile, k) => {
+  if (!TOOLS.includes(k)) return true;
+  if (k === 'report') return !!profile.reportBook;
+  return !(profile.hidden && profile.hidden[k]);
+};
+export const setTool = (d, k, on) => {
+  if (k === 'report') d.profile.reportBook = on;
+  else {
+    d.profile.hidden ??= {};
+    if (on) delete d.profile.hidden[k];
+    else d.profile.hidden[k] = true;
+  }
+};
+
 const Ctx = createContext(null);
 
 export function AppProvider({ children }) {

@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { useApp, blank } from '../store.jsx';
+import { useApp, blank, TOOLS, toolOn, setTool } from '../store.jsx';
+import { Icon } from '../App.jsx';
+import { TITLE } from './More.jsx';
 import { PERSONAS, applySample } from '../personas.js';
 import { today } from '../utils.js';
 import { Card, Field, PageHead } from '../components/ui.jsx';
@@ -99,15 +101,30 @@ export default function Settings() {
             </div>
           </Card>
 
-          <Card title={t('s_report')} hint={t('s_report_hint')}>
-            <div className="seg">
-              <button type="button" className={p.reportBook ? 'on' : ''} onClick={() => set('reportBook', true)}>
-                {t('on')}
+          <Card
+            title={t('s_tools')}
+            hint={t('s_tools_hint')}
+            right={
+              <button type="button" className="btn" onClick={() => update((d) => TOOLS.forEach((k) => setTool(d, k, true)))}>
+                {t('s_all_on')}
               </button>
-              <button type="button" className={!p.reportBook ? 'on' : ''} onClick={() => set('reportBook', false)}>
-                {t('off')}
-              </button>
-            </div>
+            }
+          >
+            <ul className="tool-switches">
+              {TOOLS.map((k) => {
+                const isOn = toolOn(p, k);
+                return (
+                  <li key={k} className={isOn ? '' : 'off'}>
+                    <Icon name={k} />
+                    <span>{t(TITLE[k])}</span>
+                    <button type="button" role="switch" aria-checked={isOn} aria-label={t(TITLE[k])} className={'switch' + (isOn ? ' on' : '')} onClick={() => update((d) => setTool(d, k, !isOn))}>
+                      <i />
+                    </button>
+                    <em>{isOn ? t('on') : t('off')}</em>
+                  </li>
+                );
+              })}
+            </ul>
           </Card>
 
           <Card title={t('s_install')} hint={t('s_install_hint')}>

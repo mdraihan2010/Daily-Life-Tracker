@@ -1,4 +1,4 @@
-import { useApp, getDay, getMonth, ensureDay, streak } from '../store.jsx';
+import { useApp, getDay, getMonth, ensureDay, streak, toolOn } from '../store.jsx';
 import { today, toMin, span, fmtDate, fmtTime, daysBetween } from '../utils.js';
 import { Check, Bar } from '../components/ui.jsx';
 import { reportStatus } from '../report.js';
@@ -30,7 +30,8 @@ export default function Home() {
   const inc = sum(month.income);
   const out = sum(month.expense);
   const pct = month.budget > 0 ? Math.round((out / month.budget) * 100) : null;
-  const rep = data.profile.reportBook ? reportStatus(data, date) : null;
+  const on = (k) => toolOn(data.profile, k);
+  const rep = on('report') ? reportStatus(data, date) : null;
   const nextEvent = data.events.filter((e) => e.date >= date).sort((a, b) => a.date.localeCompare(b.date))[0];
   const nextPlan = data.projects.filter((p) => p.deadline >= date).sort((a, b) => a.deadline.localeCompare(b.deadline))[0];
 
@@ -46,72 +47,84 @@ export default function Home() {
         </div>
       </div>
 
-      <a className="now" href="#routine">
-        <span>{t('now_routine')}</span>
-        {data.routine.length === 0 ? (
-          <strong className="small">{t('no_routine')}</strong>
-        ) : current ? (
-          <>
-            <strong>{current.title}</strong>
-            <em>
-              {fmtTime(current.start, lang)} – {fmtTime(current.end, lang)}
-            </em>
-          </>
-        ) : (
-          <strong>{t('free_time')}</strong>
-        )}
-      </a>
+      {on('routine') && (
+        <a className="now" href="#routine">
+          <span>{t('now_routine')}</span>
+          {data.routine.length === 0 ? (
+            <strong className="small">{t('no_routine')}</strong>
+          ) : current ? (
+            <>
+              <strong>{current.title}</strong>
+              <em>
+                {fmtTime(current.start, lang)} – {fmtTime(current.end, lang)}
+              </em>
+            </>
+          ) : (
+            <strong>{t('free_time')}</strong>
+          )}
+        </a>
+      )}
 
-      <section className="card">
-        <header className="card-h">
-          <div>
-            <h3>{t('top3')}</h3>
-            <p className="hint">{t('d_top_hint')}</p>
-          </div>
-          <a className="btn" href="#daily">
-            {t('d_title')} →
-          </a>
-        </header>
-        {top.length === 0 ? (
-          <p className="muted">
-            {t('top3_empty')} <a href="#daily">{t('write_now')}</a>
-          </p>
-        ) : (
-          <ul className="list">
-            {day.top.map(
-              (x, i) =>
-                x.text && (
-                  <li key={i} className={x.done ? 'done' : ''}>
-                    <Check on={x.done} label={x.text} onClick={() => update((d) => (ensureDay(d, date).top[i].done = !x.done))} />
-                    <span>{x.text}</span>
-                  </li>
-                )
-            )}
-          </ul>
-        )}
-      </section>
+      {on('daily') && (
+        <section className="card">
+          <header className="card-h">
+            <div>
+              <h3>{t('top3')}</h3>
+              <p className="hint">{t('d_top_hint')}</p>
+            </div>
+            <a className="btn" href="#daily">
+              {t('d_title')} →
+            </a>
+          </header>
+          {top.length === 0 ? (
+            <p className="muted">
+              {t('top3_empty')} <a href="#daily">{t('write_now')}</a>
+            </p>
+          ) : (
+            <ul className="list">
+              {day.top.map(
+                (x, i) =>
+                  x.text && (
+                    <li key={i} className={x.done ? 'done' : ''}>
+                      <Check on={x.done} label={x.text} onClick={() => update((d) => (ensureDay(d, date).top[i].done = !x.done))} />
+                      <span>{x.text}</span>
+                    </li>
+                  )
+              )}
+            </ul>
+          )}
+        </section>
+      )}
 
       <div className="stats">
-        <a className="stat" href="#daily">
-          <span>{t('todos')}</span>
-          <strong>{t('done_of', { a: N(todosDone), b: N(day.todos.length) })}</strong>
-          <Bar value={todosDone} max={day.todos.length} color="var(--pri)" />
-        </a>
-        <a className="stat" href="#habits">
-          <span>{t('habits_today')}</span>
-          <strong>{t('done_of', { a: N(ticked), b: N(habits.length) })}</strong>
-          <small>{t('best_streak', { n: N(best) })}</small>
-        </a>
-        <a className="stat" href="#money">
-          <span>{t('this_month')}</span>
-          <strong className={inc - out < 0 ? 'bad' : ''}>{M(inc - out)}</strong>
-          <small>{pct === null ? t('no_budget') : t('budget_used', { p: N(pct) })}</small>
-        </a>
-        <a className="stat" href="#daily">
-          <span>{t('water')}</span>
-          <strong>{t('glasses', { n: N(day.water) })}</strong>
-          <Bar value={day.water} max={8} color="#0e9aa7" />
-        </a>
+        {on('daily') && (
+          <a className="stat" href="#daily">
+            <span>{t('todos')}</span>
+            <strong>{t('done_of', { a: N(todosDone), b: N(day.todos.length) })}</strong>
+            <Bar value={todosDone} max={day.todos.length} color="var(--pri)" />
+          </a>
+        )}
+        {on('habits') && (
+          <a className="stat" href="#habits">
+            <span>{t('habits_today')}</span>
+            <strong>{t('done_of', { a: N(ticked), b: N(habits.length) })}</strong>
+            <small>{t('best_streak', { n: N(best) })}</small>
+          </a>
+        )}
+        {on('money') && (
+          <a className="stat" href="#money">
+            <span>{t('this_month')}</span>
+            <strong className={inc - out < 0 ? 'bad' : ''}>{M(inc - out)}</strong>
+            <small>{pct === null ? t('no_budget') : t('budget_used', { p: N(pct) })}</small>
+          </a>
+        )}
+        {on('daily') && (
+          <a className="stat" href="#daily">
+            <span>{t('water')}</span>
+            <strong>{t('glasses', { n: N(day.water) })}</strong>
+            <Bar value={day.water} max={8} color="#0e9aa7" />
+          </a>
+        )}
         {rep && (
           <a className="stat" href="#report">
             <span>{t('rp_home')}</span>
@@ -119,14 +132,14 @@ export default function Home() {
             <small>{rep.todayDone ? t('rp_today_yes') : t('rp_today_no')}</small>
           </a>
         )}
-        {nextEvent && (
+        {on('calendar') && nextEvent && (
           <a className="stat" href="#calendar">
             <span>{t('next_date')}</span>
             <strong>{nextEvent.title}</strong>
             <small>{fmtDate(nextEvent.date, lang, { weekday: 'long', day: 'numeric', month: 'long' })}</small>
           </a>
         )}
-        {nextPlan && (
+        {on('project') && nextPlan && (
           <a className="stat" href="#project">
             <span>{t('next_deadline')}</span>
             <strong>{t('days_left', { n: N(daysBetween(date, nextPlan.deadline)) })}</strong>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useApp } from './store.jsx';
+import { useApp, toolOn, setTool } from './store.jsx';
+import { TITLE } from './pages/More.jsx';
 import Onboarding from './pages/Onboarding.jsx';
 import Home from './pages/Home.jsx';
 import Daily from './pages/Daily.jsx';
@@ -48,7 +49,8 @@ export const GROUPS = [
   ['grp_life', ['mood', 'journal', 'books', 'report']],
   [null, ['more', 'settings']],
 ];
-const MOBILE = ['home', 'daily', 'habits', 'money', 'more'];
+// the phone's bottom bar shows Home, the first three switched-on tools from this list, and All tools
+const MOBILE_ORDER = ['daily', 'habits', 'money', 'report', 'routine', 'weekly', 'calendar', 'goals', 'project', 'savings', 'mood', 'journal', 'books', 'guide'];
 
 export const ICONS = {
   home: 'M3 11l9-8 9 8M5 10v10h14V10',
@@ -160,7 +162,7 @@ function useHash() {
 }
 
 export default function App() {
-  const { data, t, lang } = useApp();
+  const { data, update, t, lang } = useApp();
   const hash = useHash();
   useArrowKeys();
   const page = PAGES[hash] ? hash : 'home';
@@ -174,6 +176,8 @@ export default function App() {
   if (!data.profile.onboarded) return <Onboarding />;
 
   // on mobile, "All tools" stays highlighted while a tool that is not in the bottom bar is open
+  const on = (k) => toolOn(data.profile, k);
+  const MOBILE = ['home', ...MOBILE_ORDER.filter(on).slice(0, 3), 'more'];
   const mobileOn = MOBILE.includes(page) ? page : 'more';
 
   return (
@@ -183,10 +187,12 @@ export default function App() {
           <img src="./icon.svg" alt="" width="34" height="34" />
           <span>{t('app')}</span>
         </a>
-        {GROUPS.map(([label, keys], gi) => (
+        {GROUPS.map(([label, all], gi) => [label, all.filter(on), gi])
+          .filter(([, keys]) => keys.length)
+          .map(([label, keys, gi]) => (
           <div className="nav-group" key={gi}>
             {label && <p className="nav-label">{t(label)}</p>}
-            {keys.filter((k) => k !== 'report' || data.profile.reportBook).map((k) => (
+            {keys.map((k) => (
               <a
                 key={k}
                 href={'#' + k}
@@ -202,7 +208,18 @@ export default function App() {
       </nav>
       <main className="main">
         <div className="page-in" key={page}>
-          <Page />
+          {on(page) ? (
+            <Page />
+          ) : (
+            <section className="card tool-off">
+              <Icon name={page} />
+              <h2>{t(TITLE[page])}</h2>
+              <p className="muted">{t('tool_off')}</p>
+              <button type="button" className="btn primary" onClick={() => update((d) => setTool(d, page, true))}>
+                {t('tool_on_btn')}
+              </button>
+            </section>
+          )}
         </div>
       </main>
       <SavedToast />
