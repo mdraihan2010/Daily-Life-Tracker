@@ -62,6 +62,7 @@ export default function Report() {
   const L = (bn, en) => (i ? en : bn);
   const [tab, setTab] = useState('daily');
   const [view, setView] = useState('track');
+  const [pv, setPv] = useState('track');
   const [ym, setYm] = useState(today().slice(0, 7));
   const [day, setDay] = useState(Number(today().slice(8)));
   const [year, setYear] = useState(new Date().getFullYear());
@@ -116,8 +117,30 @@ export default function Report() {
   for (let n = 1; n <= count; n++) rowNums(m.days[n]).forEach((x, k) => (sums[k] += x));
 
   const value = (f) => (f.auto ? f.auto(T) : m.extra[f.k]);
-  const pair = (f) => {
-    const val = value(f);
+  const writeTabs = <Tabs value={pv} onChange={setPv} items={[['track', L('লেখো', 'Write')], ['sheet', t('sheet')]]} />;
+  // printable version of a plan: every section of the spec with the values typed in
+  const planSheet = (spec, values) => (
+    <div className="gl">
+      {spec
+        .filter((sec) => !sec.only && sec.id !== 'advice')
+        .map((sec) => (
+          <section key={sec.id} className={'gl-sec pl-' + sec.id + (sec.fields.length > 6 ? ' gl-wide gl-many' : '')}>
+            <h4>{sec.title[i]}</h4>
+            <div className="gl-grid">{sec.fields.map((f) => pair(f, values))}</div>
+          </section>
+        ))}
+      <section className="gl-sec gl-wide">
+        <h4>{L('নামাজ', 'Prayer')}</h4>
+        <p>{L('প্রতি ওয়াক্ত নামাজ জামায়াতে আদায়ের চেষ্টা করব, সাথে কিছু নফল ইবাদত, ইনশাআল্লাহ।', 'I will try to offer every prayer in congregation, along with some voluntary worship, in sha Allah.')}</p>
+      </section>
+      <div className="gl-sign gl-wide">
+        <span>{L('দায়িত্বশীলের স্বাক্ষর', 'Signature of the person in charge')}</span>
+        <span>{L('পরিকল্পনা গ্রহণকারীর স্বাক্ষর ও তারিখ', 'Signature of the planner and date')}</span>
+      </div>
+    </div>
+  );
+  const pair = (f, from) => {
+    const val = from ? from[f.k] : value(f);
     const text = val === undefined || val === '' || val === 0 ? '' : f.t === 'n' ? N(val) : val;
     return (
       <div className="gl-pair" key={f.k}>
@@ -308,9 +331,16 @@ export default function Report() {
       {tab === 'plan' && (
         <>
           <p className="notice">{L('মাসের শুরুতে লক্ষ্য লেখো। দৈনিক রিপোর্টের সাথে মিলিয়ে অ্যাপ প্রতিদিন দেখাবে তুমি এগিয়ে আছ নাকি পিছিয়ে।', 'Write your targets at the start of the month. The app compares them with the daily report and shows whether you are ahead or behind.')}</p>
-          <div className="spec-cols">
-            <SpecForm spec={MONTH_SPEC} values={m.plan} i={i} mode="plan" set={(k, val) => upMonth((mm) => put(mm.plan, k, val))} />
-          </div>
+          {writeTabs}
+          {pv === 'track' ? (
+            <div className="spec-cols" style={{ marginTop: 16 }}>
+              <SpecForm spec={MONTH_SPEC} values={m.plan} i={i} mode="plan" set={(k, val) => upMonth((mm) => put(mm.plan, k, val))} />
+            </div>
+          ) : (
+            <Sheet title={L('মাসিক পরিকল্পনা', 'Monthly plan')} sub={monthName} file={'report-plan-' + ym}>
+              {planSheet(MONTH_SPEC, m.plan)}
+            </Sheet>
+          )}
         </>
       )}
 
@@ -329,7 +359,7 @@ export default function Report() {
               {['quran', 'hadith', 'lit', 'text', 'namaz', 'org', 'contact', 'dist', 'bm', 'misc'].map((id) => MONTH_SPEC.find((x) => x.id === id)).map((sec) => (
                 <section key={sec.id} className={'gl-sec gl-' + sec.id}>
                   <h4>{sec.title[i]}</h4>
-                  <div className="gl-grid">{sec.fields.map(pair)}</div>
+                  <div className="gl-grid">{sec.fields.map((f) => pair(f))}</div>
                 </section>
               ))}
               <section className="gl-sec gl-wide">
@@ -362,9 +392,16 @@ export default function Report() {
               <input type="number" min="2000" max="2100" value={year} onChange={(e) => Number(e.target.value) > 999 && setYear(Number(e.target.value))} />
             </label>
           </Card>
-          <div className="spec-cols">
-            <SpecForm spec={ANNUAL_SPEC} values={annual} i={i} mode="plan" set={(k, val) => update((x) => put((x.report.annual[year] ??= {}), k, val))} />
-          </div>
+          {writeTabs}
+          {pv === 'track' ? (
+            <div className="spec-cols" style={{ marginTop: 16 }}>
+              <SpecForm spec={ANNUAL_SPEC} values={annual} i={i} mode="plan" set={(k, val) => update((x) => put((x.report.annual[year] ??= {}), k, val))} />
+            </div>
+          ) : (
+            <Sheet title={L('বার্ষিক পরিকল্পনা', 'Yearly plan')} sub={L(`সাল: ${N(year).replace(/[,،]/g, '')}`, `Year: ${year}`)} file={'report-yearly-plan-' + year}>
+              {planSheet(ANNUAL_SPEC, annual)}
+            </Sheet>
+          )}
         </>
       )}
 

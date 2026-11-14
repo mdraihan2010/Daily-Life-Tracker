@@ -21,6 +21,7 @@ export const blank = () => ({
   mood: { target: 8, days: {} }, // days: { '2026-11-14': { mood: 1..5, sleep: 7.5, note } }
   journal: { days: {}, weeks: {} }, // days: { date: { g: ['', '', ''], best } }, weeks: { weekStart: ['', '', ''] }
   books: {}, // { 2026: { target, list: [{ id, title, author, status, rating }], skills: [{ id, name, source, pct }] } }
+  report: { months: {}, annual: {} }, // Report Book. months: { '2026-11': { plan, days: { 1: {...} }, extra } }
   goals: {}, // { 2026: { word, list: [{ id, title, area, by, why, steps: [{ text, done }] }], months: {} } }
 });
 

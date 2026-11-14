@@ -23,6 +23,7 @@ Plan your day, build habits, keep a routine and track money. Every page can also
 | Journal | Three things to be grateful for each day, best moment, weekly review. |
 | Books & learning | Yearly reading target, bookshelf with status and rating, course/skill progress. |
 | Guide | Short, practical tips for each area with a link to the matching tool. |
+| Report book (optional) | Personal report book: monthly plan, daily report for any month (28 to 31 days handled automatically), automatic totals, automatic "month at a glance" page, yearly plan, and a warning when you fall behind the plan. Turned on from Settings. |
 | Settings | Bangla / English, light / dark, backup and restore, erase all. |
 
 - **Bangla + English** – switch any time from Settings.
@@ -52,6 +53,7 @@ src/
   i18n.js           every on-screen text: key -> [Bangla, English]
   personas.js       personas + sample data for each
   guide.js          text of the Guide page
+  report.js         Report Book: field lists, monthly totals, plan-vs-actual tracking
   utils.js          date, time and number helpers
   components/
     ui.jsx          small shared pieces (Card, Check, Tabs, Ring chart ...)

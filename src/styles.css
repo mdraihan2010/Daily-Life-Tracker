@@ -483,6 +483,11 @@ details.card > summary { cursor: pointer; font-weight: 600; }
 .gl-pair { display: flex; justify-content: space-between; gap: 8px; border-bottom: 1px dotted #b9b4a6; min-height: 17px; align-items: baseline; }
 .gl-pair span { color: var(--muted); }
 .gl-pair b { text-align: right; }
+.gl-many .gl-grid { grid-template-columns: repeat(3, 1fr); }
+.gl-many.pl-growth .gl-grid { grid-template-columns: 120px 1fr 120px 1fr; }
+.gl-sign { display: flex; justify-content: space-between; margin-top: 34px; font-weight: 600; }
+.gl-sign span { border-top: 1px solid var(--ink); padding-top: 4px; min-width: 190px; text-align: center; }
+.sheet .tabs { display: none; }
 .gl-growth { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
 .gl-growth div { display: grid; grid-template-columns: 90px 30px 1fr; gap: 6px; border-bottom: 1px dotted #b9b4a6; min-height: 19px; align-items: baseline; }
 .gl-growth span { color: var(--muted); }
