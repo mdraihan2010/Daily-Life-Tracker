@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { useApp } from '../store.jsx';
 import { today, parse, loc, uid } from '../utils.js';
-import { Card, Field, Del, Tabs, PageHead, Bar } from '../components/ui.jsx';
+import { Card, Field, Del, Tabs, PageHead, Bar, NumInput } from '../components/ui.jsx';
 import Sheet from '../components/Sheet.jsx';
 
-const numIn = (v) => Math.max(0, Number(v) || 0);
-const Num = ({ value, onChange }) => <input type="number" min="0" inputMode="numeric" value={value || ''} onChange={(e) => onChange(numIn(e.target.value))} />;
+const Num = ({ value, onChange }) => <NumInput value={value || undefined} onChange={(v) => onChange(v || 0)} />;
 const COLORS = ['#17865a', '#0b7f8a', '#b06f0a', '#6d4de0', '#2f4bd8', '#b83280'];
 
 export default function Savings() {

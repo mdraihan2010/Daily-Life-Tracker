@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useApp } from '../store.jsx';
 import { today, addDays, parse, loc, fmtDate } from '../utils.js';
-import { Card, Field, Tabs, PageHead } from '../components/ui.jsx';
+import { Card, Field, Tabs, PageHead, NumInput } from '../components/ui.jsx';
 import Sheet from '../components/Sheet.jsx';
 
 export const MOODS = { 1: '#17865a', 2: '#7a9a1f', 3: '#f2a03d', 4: '#0b7f8a', 5: '#3b3f8f' };
@@ -79,7 +79,7 @@ export default function Mood() {
             </div>
             <div className="stat">
               <Field label={t('md_target')}>
-                <input type="number" min="1" max="14" step="0.5" value={target || ''} onChange={(e) => update((x) => (x.mood.target = Number(e.target.value) || 0))} />
+                <NumInput value={target || undefined} max={14} onChange={(v) => update((x) => (x.mood.target = v || 0))} />
               </Field>
             </div>
           </div>
@@ -107,18 +107,7 @@ export default function Mood() {
                         />
                       ))}
                     </div>
-                    <input
-                      type="number"
-                      min="0"
-                      max="24"
-                      step="0.5"
-                      inputMode="decimal"
-                      disabled={future}
-                      value={e.sleep ?? ''}
-                      placeholder={t('md_sleep')}
-                      aria-label={t('md_sleep')}
-                      onChange={(x) => set(d, 'sleep', x.target.value === '' ? '' : Math.min(24, Math.max(0, Number(x.target.value))))}
-                    />
+                    <NumInput disabled={future} value={e.sleep} max={24} placeholder={t('md_sleep')} aria-label={t('md_sleep')} onChange={(v) => set(d, 'sleep', v === undefined ? '' : v)} />
                   </div>
                 );
               })}

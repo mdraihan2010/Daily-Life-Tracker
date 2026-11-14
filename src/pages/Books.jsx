@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useApp } from '../store.jsx';
 import { uid } from '../utils.js';
-import { Card, Field, Del, Tabs, PageHead, Bar } from '../components/ui.jsx';
+import { Card, Field, Del, Tabs, PageHead, Bar, NumInput } from '../components/ui.jsx';
 import Sheet from '../components/Sheet.jsx';
 
 const newYear = () => ({ target: 12, list: [], skills: [] });
@@ -72,10 +72,10 @@ export default function Books() {
           <Card>
             <div className="grid2">
               <Field label={t('g_year')}>
-                <input type="number" min="2000" max="2100" value={year} onChange={(e) => Number(e.target.value) > 999 && setYear(Number(e.target.value))} />
+                <NumInput value={year} max={2100} onChange={(v) => v > 999 && setYear(Math.round(v))} />
               </Field>
               <Field label={t('b_target')}>
-                <input type="number" min="0" inputMode="numeric" value={b.target || ''} onChange={(e) => up((x) => (x.target = Math.max(0, Number(e.target.value) || 0)))} />
+                <NumInput value={b.target || undefined} onChange={(v) => up((x) => (x.target = v || 0))} />
               </Field>
             </div>
             <Summary />
@@ -124,7 +124,7 @@ export default function Books() {
                       <input value={s.source} onChange={(e) => up((y) => (y.skills[i].source = e.target.value))} />
                     </Field>
                     <Field label={t('b_pct')}>
-                      <input type="number" min="0" max="100" inputMode="numeric" value={s.pct || ''} onChange={(e) => up((y) => (y.skills[i].pct = Math.min(100, Math.max(0, Number(e.target.value) || 0))))} />
+                      <NumInput value={s.pct || undefined} max={100} onChange={(v) => up((y) => (y.skills[i].pct = v || 0))} />
                     </Field>
                   </div>
                   <Bar value={s.pct} max={100} color={SKILL_COLORS[i % SKILL_COLORS.length]} />

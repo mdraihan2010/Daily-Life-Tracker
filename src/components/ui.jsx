@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useApp } from '../store.jsx';
 
 export const Card = ({ title, hint, right, children, className = '' }) => (
   <section className={'card ' + className}>
@@ -96,5 +97,38 @@ export function Ring({ arcs, size = 220, width = 34, children }) {
       })}
       {children}
     </svg>
+  );
+}
+
+const BN_DIGITS = '০১২৩৪৫৬৭৮৯';
+const toAscii = (s) => s.replace(/[০-৯]/g, (d) => BN_DIGITS.indexOf(d));
+const toBn = (s) => s.replace(/[0-9]/g, (d) => BN_DIGITS[d]);
+
+// Number box that accepts BOTH Bangla (০-৯) and English (0-9) digits.
+// A normal <input type="number"> rejects Bangla digits, so this is a text box that converts them.
+// value: number or undefined. onChange gets a number, or undefined when the box is emptied.
+export function NumInput({ value, onChange, max, className, placeholder, ...rest }) {
+  const { lang } = useApp();
+  const [typing, setTyping] = useState(null); // what is being typed, e.g. "3." before the decimals
+  const shown = typing ?? (value === undefined || value === null || value === '' || Number.isNaN(value) ? '' : String(value));
+  return (
+    <input
+      {...rest}
+      type="text"
+      inputMode="decimal"
+      autoComplete="off"
+      className={className}
+      placeholder={placeholder}
+      value={lang === 'bn' ? toBn(shown) : shown}
+      onChange={(e) => {
+        let raw = toAscii(e.target.value).replace(/[^0-9.]/g, '');
+        const dot = raw.indexOf('.');
+        if (dot !== -1) raw = raw.slice(0, dot + 1) + raw.slice(dot + 1).replace(/\./g, '');
+        setTyping(raw);
+        if (raw === '' || raw === '.') return onChange(undefined);
+        onChange(Math.min(max ?? Infinity, Number(raw)));
+      }}
+      onBlur={() => setTyping(null)}
+    />
   );
 }

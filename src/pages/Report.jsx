@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useApp } from '../store.jsx';
 import { today, parse, loc, fmtDate } from '../utils.js';
-import { Card, Check, Tabs, PageHead, Bar } from '../components/ui.jsx';
+import { Card, Check, Tabs, PageHead, Bar, NumInput } from '../components/ui.jsx';
 import Sheet from '../components/Sheet.jsx';
 import { MONTH_SPEC, ANNUAL_SPEC, CONTACTS, DIST, GROWTH, DAY_STUDY, DAY_CLASS, DAY_ORG, DAY_CHECKS, WAQTS, prayerState, TABLE_GROUPS, daysIn, newMonthRep, getMonthRep, totals, rowNums, elapsedDays, track } from '../report.js';
 
@@ -14,7 +14,7 @@ function Input({ f, value, onChange, i, max, stepper }) {
     onChange(next === 0 ? undefined : next);
   };
   const number = (
-    <input type="number" min="0" max={max} step="any" inputMode="decimal" value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : clamp(Number(e.target.value) || 0))} />
+    <NumInput value={value} max={max} onChange={onChange} />
   );
   return (
     <label className={'field' + (value !== undefined ? ' filled' : '')}>
@@ -531,7 +531,7 @@ export default function Report() {
           <Card>
             <label className="field" style={{ maxWidth: 200, marginBottom: 0 }}>
               <span>{L('সাল', 'Year')}</span>
-              <input type="number" min="2000" max="2100" value={year} onChange={(e) => Number(e.target.value) > 999 && setYear(Number(e.target.value))} />
+              <NumInput value={year} max={2100} onChange={(v) => v > 999 && setYear(Math.round(v))} />
             </label>
           </Card>
           {writeTabs}

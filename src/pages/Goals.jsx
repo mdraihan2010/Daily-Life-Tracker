@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useApp } from '../store.jsx';
 import { GOAL_AREAS } from '../i18n.js';
 import { loc, uid } from '../utils.js';
-import { Card, Field, Check, Del, Tabs, PageHead } from '../components/ui.jsx';
+import { Card, Field, Check, Del, Tabs, PageHead, NumInput } from '../components/ui.jsx';
 import Sheet from '../components/Sheet.jsx';
 
 const newYear = () => ({ word: '', list: [], months: {} });
@@ -28,7 +28,7 @@ export default function Goals() {
           <Card>
             <div className="grid2">
               <Field label={t('g_year')}>
-                <input type="number" min="2000" max="2100" value={year} onChange={(e) => Number(e.target.value) > 999 && setYear(Number(e.target.value))} />
+                <NumInput value={year} max={2100} onChange={(v) => v > 999 && setYear(Math.round(v))} />
               </Field>
               <Field label={t('g_word')}>
                 <input value={g.word} placeholder={t('g_word_ph')} onChange={(e) => up((x) => (x.word = e.target.value))} />

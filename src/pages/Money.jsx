@@ -2,11 +2,10 @@ import { useState } from 'react';
 import { useApp, getMonth, ensureMonth } from '../store.jsx';
 import { MONEY_CATS } from '../i18n.js';
 import { today, fmtDate, uid } from '../utils.js';
-import { Card, Field, Del, Tabs, PageHead, Ring, Bar } from '../components/ui.jsx';
+import { Card, Field, Del, Tabs, PageHead, Ring, Bar, NumInput } from '../components/ui.jsx';
 import Sheet from '../components/Sheet.jsx';
 
 const sum = (a) => a.reduce((s, x) => s + (Number(x.amount) || 0), 0);
-const numIn = (v) => Math.max(0, Number(v) || 0);
 
 export default function Money() {
   const { data, update, t, lang, N, M } = useApp();
@@ -108,10 +107,10 @@ export default function Money() {
                 </Field>
                 <div className="grid2">
                   <Field label={t('m_budget')}>
-                    <input type="number" min="0" inputMode="numeric" value={m.budget || ''} onChange={(e) => up((mm) => (mm.budget = numIn(e.target.value)))} />
+                    <NumInput value={m.budget || undefined} onChange={(v) => up((mm) => (mm.budget = v || 0))} />
                   </Field>
                   <Field label={t('m_goal')}>
-                    <input type="number" min="0" inputMode="numeric" value={m.goal || ''} onChange={(e) => up((mm) => (mm.goal = numIn(e.target.value)))} />
+                    <NumInput value={m.goal || undefined} onChange={(v) => up((mm) => (mm.goal = v || 0))} />
                   </Field>
                 </div>
                 <GoalBar />
@@ -121,7 +120,7 @@ export default function Money() {
                 {m.income.map((x, i) => (
                   <div className="row" key={x.id}>
                     <input className="grow" value={x.title} placeholder={t('m_what')} onChange={(e) => up((mm) => (mm.income[i].title = e.target.value))} />
-                    <input className="w-amt" type="number" min="0" inputMode="numeric" value={x.amount || ''} placeholder={t('m_amount')} onChange={(e) => up((mm) => (mm.income[i].amount = numIn(e.target.value)))} />
+                    <NumInput className="w-amt" value={x.amount || undefined} placeholder={t('m_amount')} onChange={(v) => up((mm) => (mm.income[i].amount = v || 0))} />
                     <Del onClick={() => up((mm) => mm.income.splice(i, 1))} />
                   </div>
                 ))}
@@ -143,7 +142,7 @@ export default function Money() {
                         </option>
                       ))}
                     </select>
-                    <input className="w-amt" type="number" min="0" inputMode="numeric" value={x.amount || ''} placeholder={t('m_amount')} onChange={(e) => up((mm) => (mm.expense[i].amount = numIn(e.target.value)))} />
+                    <NumInput className="w-amt" value={x.amount || undefined} placeholder={t('m_amount')} onChange={(v) => up((mm) => (mm.expense[i].amount = v || 0))} />
                     <Del onClick={() => up((mm) => mm.expense.splice(i, 1))} />
                   </div>
                 ))}
