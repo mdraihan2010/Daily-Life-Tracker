@@ -13,6 +13,14 @@ const U = {
 };
 const n = (k, bn, en, u, auto) => ({ k, l: [bn, en], t: 'n', u, auto });
 const s = (k, bn, en, auto) => ({ k, l: [bn, en], t: 's', auto });
+// a length of time, typed as hours + minutes and stored as hours (4 h 30 min -> 4.5)
+const h = (k, bn, en, auto) => ({ k, l: [bn, en], t: 'h', auto });
+const per = (a, b) => (b ? a / b : 0);
+// 4.5 -> "4.30" (hours.minutes, the way it is written in the paper report book)
+export const hm = (x) => {
+  const mins = Math.round((Number(x) || 0) * 60);
+  return `${Math.floor(mins / 60)}.${String(mins % 60).padStart(2, '0')}`;
+};
 const r1 = (x) => Math.round(x * 10) / 10;
 const div = (a, b) => (b ? r1(a / b) : 0);
 
@@ -58,7 +66,7 @@ export const DAY_STUDY = [
   n('hadith', 'হাদিস (সংখ্যা)', 'Hadith (count)'),
   n('litI', 'ইসলামী সাহিত্য (পৃষ্ঠা)', 'Islamic literature (pages)'),
   n('litO', 'অন্যান্য সাহিত্য (পৃষ্ঠা)', 'Other literature (pages)'),
-  { ...n('text', 'পাঠ্যপুস্তক (ঘণ্টা)', 'Textbook study (hours)'), st: 0.5 },
+  h('text', 'পাঠ্যপুস্তক অধ্যয়ন', 'Textbook study'),
 ];
 export const DAY_CLASS = [n('cls', 'আজ কয়টা ক্লাস ছিল', 'Classes held today'), n('att', 'কয়টায় উপস্থিত ছিলে', 'Classes attended')];
 // the five daily prayers; each one is marked "in congregation" (j) or "missed" (k)
@@ -87,8 +95,8 @@ export const prayerState = (d = {}) => {
   return out;
 };
 export const DAY_ORG = [
-  { ...n('dawah', 'দাওয়াতি কাজ (ঘণ্টা)', 'Dawah work (hours)'), st: 0.5 },
-  { ...n('org', 'অন্যান্য সাংগঠনিক কাজ (ঘণ্টা)', 'Other organisational work (hours)'), st: 0.5 },
+  h('dawah', 'দাওয়াতি কাজ', 'Dawah work'),
+  h('org', 'অন্যান্য সাংগঠনিক কাজ', 'Other organisational work'),
 ];
 export const DAY_CHECKS = [
   ['paper', 'পত্রিকা পাঠ', 'Read newspaper'],
@@ -139,7 +147,7 @@ export const MONTH_SPEC = [
     title: ['পাঠ্যপুস্তক অধ্যয়ন ও ক্লাস', 'Textbook study and classes'],
     fields: [
       n('t_days', 'মোট দিন', 'Total days', U.day, (T) => T.tDays),
-      n('t_avg', 'গড় ঘণ্টা', 'Average hours', U.hr, (T) => div(T.text, T.tDays)),
+      h('t_avg', 'দিনে গড়ে সময়', 'Average time per day', (T) => per(T.text, T.tDays)),
       n('c_total', 'মোট ক্লাস', 'Total classes', null, (T) => T.cls),
       n('c_attend', 'উপস্থিতি', 'Attended', null, (T) => T.att),
     ],
@@ -164,9 +172,9 @@ export const MONTH_SPEC = [
     title: ['সাংগঠনিক দায়িত্ব পালন', 'Organisational duties'],
     fields: [
       n('o_dawahDays', 'দাওয়াতি কাজ: দিন', 'Dawah work: days', U.day, (T) => T.dawahDays),
-      n('o_dawahAvg', 'দাওয়াতি কাজ: গড় ঘণ্টা', 'Dawah work: avg hours', U.hr, (T) => div(T.dawah, T.dawahDays)),
+      h('o_dawahAvg', 'দাওয়াতি কাজ: দিনে গড়ে সময়', 'Dawah work: average time', (T) => per(T.dawah, T.dawahDays)),
       n('o_otherDays', 'অন্যান্য সাংগঠনিক কাজ: দিন', 'Other work: days', U.day, (T) => T.otherDays),
-      n('o_otherAvg', 'অন্যান্য সাংগঠনিক কাজ: গড় ঘণ্টা', 'Other work: avg hours', U.hr, (T) => div(T.org, T.otherDays)),
+      h('o_otherAvg', 'অন্যান্য সাংগঠনিক কাজ: দিনে গড়ে সময়', 'Other work: average time', (T) => per(T.org, T.otherDays)),
     ],
   },
   {
@@ -267,7 +275,7 @@ export const ANNUAL_SPEC = [
   {
     id: 'text',
     title: ['পাঠ্যপুস্তক, ক্লাস ও নামাজ', 'Textbooks, classes and prayer'],
-    fields: [n('t_avg', 'পাঠ্যপুস্তক অধ্যয়ন: প্রতিদিন গড়ে', 'Textbook study: average per day', U.hr), n('c_avg', 'ক্লাসে উপস্থিতি: প্রতিদিন', 'Class attendance: per day', U.pcs), s('nz_note', 'নামাজ ও নফল ইবাদতের লক্ষ্য', 'Prayer and voluntary worship goal')],
+    fields: [h('t_avg', 'পাঠ্যপুস্তক অধ্যয়ন: প্রতিদিন গড়ে', 'Textbook study: average per day'), n('c_avg', 'ক্লাসে উপস্থিতি: প্রতিদিন', 'Class attendance: per day', U.pcs), s('nz_note', 'নামাজ ও নফল ইবাদতের লক্ষ্য', 'Prayer and voluntary worship goal')],
   },
   {
     id: 'contact',
@@ -294,7 +302,7 @@ export const ANNUAL_SPEC = [
   {
     id: 'org',
     title: ['সাংগঠনিক দায়িত্ব পালন', 'Organisational duties'],
-    fields: [n('o_otherDays', 'অন্যান্য সাংগঠনিক কাজ: প্রতি মাসে', 'Other work: per month', U.day), n('o_otherAvg', 'অন্যান্য সাংগঠনিক কাজ: গড় ঘণ্টা', 'Other work: avg hours', U.hr), n('o_dawahDays', 'দাওয়াতি কাজ: প্রতি মাসে', 'Dawah work: per month', U.day), n('o_dawahAvg', 'দাওয়াতি কাজ: গড় ঘণ্টা', 'Dawah work: avg hours', U.hr)],
+    fields: [n('o_otherDays', 'অন্যান্য সাংগঠনিক কাজ: প্রতি মাসে', 'Other work: per month', U.day), h('o_otherAvg', 'অন্যান্য সাংগঠনিক কাজ: দিনে গড়ে সময়', 'Other work: average time'), n('o_dawahDays', 'দাওয়াতি কাজ: প্রতি মাসে', 'Dawah work: per month', U.day), h('o_dawahAvg', 'দাওয়াতি কাজ: দিনে গড়ে সময়', 'Dawah work: average time')],
   },
   {
     id: 'dawah',
@@ -356,7 +364,6 @@ export function totals(days, count) {
     const name = (d.surah || '').trim();
     if (name && !T.surahs.includes(name)) T.surahs.push(name);
   }
-  for (const k of ['text', 'dawah', 'org']) T[k] = r1(T[k]);
   return T;
 }
 
@@ -407,13 +414,13 @@ export function track(plan, T, count, elapsed) {
     [['হাদিস', 'Hadith'], p('h_days') * p('h_avg'), T.hadith],
     [['ইসলামী সাহিত্য (পৃষ্ঠা)', 'Islamic literature (pages)'], p('l_islami'), T.litI],
     [['অন্যান্য সাহিত্য (পৃষ্ঠা)', 'Other literature (pages)'], p('l_other'), T.litO],
-    [['পাঠ্যপুস্তক (ঘণ্টা)', 'Textbook study (hours)'], p('t_days') * p('t_avg'), T.text],
+    [['পাঠ্যপুস্তক অধ্যয়ন (ঘণ্টা.মিনিট)', 'Textbook study (h.mm)'], p('t_days') * p('t_avg'), T.text, true],
     [['ক্লাসে উপস্থিতি', 'Class attendance'], p('c_attend'), T.att],
     [['জামায়াতে নামাজ (ওয়াক্ত)', 'Prayers in congregation'], 5 * count, T.jam],
     [['যোগাযোগ (জন)', 'Contacts (people)'], sum(CONTACTS, 'ct_'), T.ctTotal],
     [['বিতরণ (টি)', 'Distribution (pcs)'], sum(DIST, 'ds_'), T.dsTotal],
-    [['দাওয়াতি কাজ (ঘণ্টা)', 'Dawah work (hours)'], p('o_dawahDays') * p('o_dawahAvg'), T.dawah],
-    [['অন্যান্য সাংগঠনিক কাজ (ঘণ্টা)', 'Other organisational work (hours)'], p('o_otherDays') * p('o_otherAvg'), T.org],
+    [['দাওয়াতি কাজ (ঘণ্টা.মিনিট)', 'Dawah work (h.mm)'], p('o_dawahDays') * p('o_dawahAvg'), T.dawah, true],
+    [['অন্যান্য সাংগঠনিক কাজ (ঘণ্টা.মিনিট)', 'Other organisational work (h.mm)'], p('o_otherDays') * p('o_otherAvg'), T.org, true],
     [['আত্মসমালোচনা (দিন)', 'Self-criticism (days)'], p('m_self'), T.self],
     [['শরীরচর্চা (দিন)', 'Exercise (days)'], p('m_exercise'), T.exercise],
     [['পত্রিকা পাঠ (দিন)', 'Newspaper reading (days)'], p('m_paper'), T.paper],
@@ -421,16 +428,18 @@ export function track(plan, T, count, elapsed) {
   const left = Math.max(1, count - elapsed);
   return rows
     .filter(([, target]) => target > 0)
-    .map(([label, target, actual]) => {
+    .map(([label, target, actual, time]) => {
       const expected = (target * elapsed) / count;
+      const f = time ? (x) => x : r1; // times stay exact; they are shown as hours.minutes
       return {
         label,
-        target: r1(target),
-        actual: r1(actual),
-        expected: r1(expected),
+        time: !!time,
+        target: f(target),
+        actual: f(actual),
+        expected: f(expected),
         behind: expected > 0 && actual < expected * 0.9,
         done: actual >= target,
-        perDay: r1(Math.max(0, target - actual) / left),
+        perDay: f(Math.max(0, target - actual) / left),
       };
     });
 }
@@ -444,4 +453,53 @@ export function reportStatus(data, todayIso) {
   const rows = track(m.plan, T, count, elapsedDays(ym, count, todayIso));
   const d = m.days[Number(todayIso.slice(8))];
   return { behind: rows.filter((r) => r.behind).length, todayDone: !!d && Object.keys(d).length > 0, hasPlan: Object.keys(m.plan).length > 0 };
+}
+
+// ---- the printed daily table, laid out like the paper report book ----
+// 13 columns; a column with several parts shows them joined by "-" (e.g. contacts 1-2-1-2).
+export const BOOK_COLS = [
+  { t: ['কুরআন অধ্যয়ন', 'Quran study'], s: [['সূরা', 'Surah'], ['আয়াত', 'Ayat']], w: 112 },
+  { t: ['হাদিস অধ্যয়ন', 'Hadith study'], s: [['সংখ্যা', 'Count']], w: 62 },
+  { t: ['সাহিত্য অধ্যয়ন', 'Literature study'], s: [['ইসলামী', 'Islamic'], ['অন্যান্য', 'Other']], w: 76 },
+  { t: ['পাঠ্যপুস্তক অধ্যয়ন', 'Textbook study'], s: [['ঘণ্টা', 'Hours']], w: 74 },
+  { t: ['ক্লাস', 'Class'], s: [['সংখ্যা', 'Held'], ['উপস্থিতি', 'Attended']], w: 66 },
+  { t: ['নামাজ', 'Prayer'], s: [['জামায়াত', 'Jamaat'], ['কাজা', 'Kaza']], w: 68 },
+  { t: ['যোগাযোগ', 'Contacts'], s: [['সদস্য', 'Member'], ['সাথী', 'Sathi'], ['কর্মী', 'Worker'], ['সমর্থক', 'Supporter']], w: 84 },
+  { t: ['যোগাযোগ', 'Contacts'], s: [['বন্ধু', 'Friend'], ['মেধাবী ছাত্র', 'Bright student'], ['শুভাকাঙ্ক্ষী', 'Well-wisher'], ['মুহাররমা', 'Muharrama']], w: 94 },
+  { t: ['বিতরণ', 'Distribution'], s: [['সাহিত্য', 'Literature'], ['ম্যাগাজিন', 'Magazine'], ['স্টিকার/কার্ড', 'Sticker/Card'], ['উপহার', 'Gift']], w: 94 },
+];
+const join = (...xs) => (xs.some((x) => x) ? xs.join('-') : '');
+// Text of the 14 data cells of one row. `d` is a day's entry, or a month total made by bookTotal().
+export function bookRow(d = {}, total = false) {
+  const time = (k) => (v(d, k) ? hm(v(d, k)) : '');
+  const tick = (k) => (total ? (d[k] ? String(d[k]) : '') : d[k] ? '✓' : '');
+  return [
+    [total ? '' : (d.surah || '').trim(), v(d, 'ayat') ? String(v(d, 'ayat')) : ''], // Quran: surah + ayat
+    v(d, 'hadith') ? String(v(d, 'hadith')) : '',
+    v(d, 'litO') ? join(v(d, 'litI'), v(d, 'litO')) : v(d, 'litI') ? String(v(d, 'litI')) : '',
+    time('text'),
+    join(v(d, 'cls'), v(d, 'att')),
+    v(d, 'kaza') ? join(v(d, 'jam'), v(d, 'kaza')) : v(d, 'jam') ? String(v(d, 'jam')) : '',
+    join(v(d, 'ct_member'), v(d, 'ct_sathi'), v(d, 'ct_kormi'), v(d, 'ct_supporter')),
+    join(v(d, 'ct_friend'), v(d, 'ct_bright'), v(d, 'ct_wellwisher'), v(d, 'ct_muharrama')),
+    join(v(d, 'ds_lit') + v(d, 'ds_intro'), v(d, 'ds_kishor') + v(d, 'ds_yw') + v(d, 'ds_chhatro') + v(d, 'ds_eng'), v(d, 'ds_sticker') + v(d, 'ds_routine'), v(d, 'ds_gift')),
+    time('dawah'),
+    time('org'),
+    tick('paper'),
+    tick('exercise'),
+    tick('self'),
+  ];
+}
+// Adds up every day of the month into one "day"-shaped object (ticks become counts).
+export function bookTotal(days, count) {
+  const sum = {};
+  for (let i = 1; i <= count; i++) {
+    const d = days[i];
+    if (!d) continue;
+    for (const [k, val] of Object.entries(d)) {
+      if (k === 'surah' || k === 'nz') continue;
+      sum[k] = (sum[k] || 0) + (val === true ? 1 : Number(val) || 0);
+    }
+  }
+  return sum;
 }

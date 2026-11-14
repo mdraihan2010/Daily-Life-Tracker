@@ -3,7 +3,7 @@ import { useApp } from '../store.jsx';
 import { today, parse, loc, fmtDate } from '../utils.js';
 import { Card, Check, Tabs, PageHead, Bar, NumInput } from '../components/ui.jsx';
 import Sheet from '../components/Sheet.jsx';
-import { MONTH_SPEC, ANNUAL_SPEC, CONTACTS, DIST, GROWTH, DAY_STUDY, DAY_CLASS, DAY_ORG, DAY_CHECKS, WAQTS, prayerState, TABLE_GROUPS, daysIn, newMonthRep, getMonthRep, totals, rowNums, elapsedDays, track } from '../report.js';
+import { MONTH_SPEC, ANNUAL_SPEC, CONTACTS, DIST, GROWTH, DAY_STUDY, DAY_CLASS, DAY_ORG, DAY_CHECKS, WAQTS, prayerState, BOOK_COLS, bookRow, bookTotal, hm, daysIn, newMonthRep, getMonthRep, totals, elapsedDays, track } from '../report.js';
 
 // one labelled input; empty value removes the key so "nothing written" stays empty
 function Input({ f, value, onChange, i, max, stepper }) {
@@ -16,6 +16,24 @@ function Input({ f, value, onChange, i, max, stepper }) {
   const number = (
     <NumInput value={value} max={max} onChange={onChange} />
   );
+  if (f.t === 'h') {
+    // hours + minutes, stored as hours (4 h 30 min -> 4.5)
+    const mins = Math.round((Number(value) || 0) * 60);
+    const hh = Math.floor(mins / 60);
+    const mm = mins % 60;
+    const put = (H, M) => onChange(H || M ? (H || 0) + (M || 0) / 60 : undefined);
+    return (
+      <div className={'field' + (value !== undefined ? ' filled' : '')} role="group" aria-label={label}>
+        <span>{label}</span>
+        <div className="hm">
+          <NumInput value={value === undefined ? undefined : hh} max={24} aria-label={label + ' ' + (i ? 'hours' : 'ঘণ্টা')} onChange={(x) => put(Math.floor(x || 0), mm)} />
+          <em>{i ? 'h' : 'ঘণ্টা'}</em>
+          <NumInput value={value === undefined ? undefined : mm} max={59} aria-label={label + ' ' + (i ? 'minutes' : 'মিনিট')} onChange={(x) => put(hh, Math.floor(x || 0))} />
+          <em>{i ? 'min' : 'মিনিট'}</em>
+        </div>
+      </div>
+    );
+  }
   return (
     <label className={'field' + (value !== undefined ? ' filled' : '')}>
       <span>{label}</span>
@@ -202,9 +220,70 @@ export default function Report() {
   const dayEmpty = Object.keys(d).length === 0;
   const isFriday = parse(`${ym}-${String(sel).padStart(2, '0')}`).getDay() === 5;
 
-  // totals row of the printed table
-  const sums = Array(26).fill(0);
-  for (let n = 1; n <= count; n++) rowNums(m.days[n]).forEach((x, k) => (sums[k] += x));
+  // digits in the current language, for text that is already formatted (e.g. "4.30", "1-2-1-2")
+  const D = (str) => (i ? str : String(str).replace(/[0-9]/g, (c) => '০১২৩৪৫৬৭৮৯'[c]));
+  const num = (r, x) => (r.time ? D(hm(x)) : N(x)); // a tracked value: plain number, or hours.minutes
+
+  // one page of the printed table, laid out like the paper report book
+  const bookPage = (from, to, withTotal) => (
+    <table className="bk">
+      <thead>
+        <tr>
+          <th rowSpan="2" className="bk-date">
+            {D(`${from}-${to}`)}
+            <br />
+            {L('তারিখ পর্যন্ত', 'dates')}
+          </th>
+          {BOOK_COLS.map((c, k) => (
+            <th key={k} rowSpan="2" style={{ width: c.w }}>
+              <b>{c.t[i]}</b>
+              {c.s.map((x) => (
+                <span key={x[1]}>■ {x[i]}</span>
+              ))}
+            </th>
+          ))}
+          <th colSpan="2" className="bk-org">
+            <b>{L('সাংগঠনিক দায়িত্ব পালন (ঘণ্টা)', 'Organisational duties (hours)')}</b>
+          </th>
+          {[L('পত্রিকা পাঠ', 'Newspaper'), L('শরীর চর্চা', 'Exercise'), L('আত্ম-সমালোচনা', 'Self-criticism')].map((x) => (
+            <th key={x} rowSpan="2" className="bk-tick">
+              <b>{x}</b>
+              <i>✓</i>
+            </th>
+          ))}
+        </tr>
+        <tr>
+          <th className="bk-org2">{L('দাওয়াতি কাজ', 'Dawah work')}</th>
+          <th className="bk-org2">{L('অন্যান্য সাংগঠনিক কাজ', 'Other organisational work')}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {Array.from({ length: to - from + 1 }, (_, k) => from + k).map((n) => {
+          const cells = bookRow(m.days[n]);
+          return (
+            <tr key={n}>
+              <th>{N(n)}</th>
+              <td className="bk-quran">
+                {cells[0][0] && <small>{cells[0][0]}</small>}
+                {D(cells[0][1])}
+              </td>
+              {cells.slice(1).map((x, k) => (
+                <td key={k}>{D(x)}</td>
+              ))}
+            </tr>
+          );
+        })}
+        {withTotal && (
+          <tr className="bk-total">
+            <th>{L('মোট', 'Total')}</th>
+            {bookRow(bookTotal(m.days, count), true).map((x, k) => (
+              <td key={k}>{D(k === 0 ? x[1] : x)}</td>
+            ))}
+          </tr>
+        )}
+      </tbody>
+    </table>
+  );
 
   const value = (f) => (f.auto ? f.auto(T) : m.extra[f.k]);
   const writeTabs = <Tabs value={pv} onChange={setPv} items={[['track', L('লেখো', 'Write')], ['sheet', t('sheet')]]} />;
@@ -231,7 +310,7 @@ export default function Report() {
   );
   const pair = (f, from) => {
     const val = from ? from[f.k] : value(f);
-    const text = val === undefined || val === '' || val === 0 ? '' : f.t === 'n' ? N(val) : val;
+    const text = val === undefined || val === '' || val === 0 ? '' : f.t === 'h' ? D(hm(val)) : f.t === 'n' ? N(val) : val;
     return (
       <div className="gl-pair" key={f.k}>
         <span>{f.l[i]}</span>
@@ -286,7 +365,7 @@ export default function Report() {
                 <ul>
                   {behind.map((r) => (
                     <li key={r.label[1]}>
-                      {r.label[i]}: {L(`এ পর্যন্ত হওয়ার কথা ${N(r.expected)}, হয়েছে ${N(r.actual)}। বাকি দিনগুলোতে দিনে গড়ে ${N(r.perDay)} করতে হবে।`, `expected ${r.expected} by now, done ${r.actual}. You need about ${r.perDay} per day for the rest of the month.`)}
+                      {r.label[i]}: {L(`এ পর্যন্ত হওয়ার কথা ${num(r, r.expected)}, হয়েছে ${num(r, r.actual)}। বাকি দিনগুলোতে দিনে গড়ে ${num(r, r.perDay)} করতে হবে।`, `expected ${num(r, r.expected)} by now, done ${num(r, r.actual)}. You need about ${num(r, r.perDay)} per day for the rest of the month.`)}
                     </li>
                   ))}
                 </ul>
@@ -304,7 +383,7 @@ export default function Report() {
                   <span>{r.label[i]}</span>
                   <Bar value={r.actual} max={r.target} color={r.behind ? 'var(--bad)' : 'var(--ok)'} />
                   <b>
-                    {N(r.actual)} / {N(r.target)}
+                    {num(r, r.actual)} / {num(r, r.target)}
                   </b>
                   <em>{r.done ? L('পূরণ', 'Done') : r.behind ? L('পিছিয়ে', 'Behind') : L('ঠিক আছে', 'On track')}</em>
                 </div>
@@ -410,65 +489,16 @@ export default function Report() {
               </div>
             </>
           ) : (
-            <Sheet title={L('দৈনিক রিপোর্ট', 'Daily report')} sub={monthName} file={'report-daily-' + ym}>
-              <table className="rp-table">
-                <colgroup>
-                  <col style={{ width: 28 }} />
-                  <col style={{ width: 84 }} />
-                </colgroup>
-                <thead>
-                  <tr>
-                    <th rowSpan="2" className="rp-date">
-                      {L('তারিখ', 'Date')}
-                    </th>
-                    {TABLE_GROUPS.map(([g, cols], k) =>
-                      cols.length === 1 ? (
-                        <th key={k} rowSpan="2" className="rp-sub">
-                          <span>{g[i]}</span>
-                        </th>
-                      ) : (
-                        <th key={k} colSpan={cols.length} className="rp-group">
-                          {g[i]}
-                        </th>
-                      )
-                    )}
-                  </tr>
-                  <tr>
-                    {TABLE_GROUPS.flatMap(([, cols], k) =>
-                      cols.length === 1
-                        ? []
-                        : cols.map((c, j) => (
-                            <th key={k + '-' + j} className={'rp-sub' + (k === 0 && j === 0 ? ' rp-surah' : '')}>
-                              <span>{c[i]}</span>
-                            </th>
-                          ))
-                    )}
-                  </tr>
-                </thead>
-                <tbody>
-                  {Array.from({ length: count }, (_, k) => k + 1).map((n) => {
-                    const x = m.days[n] || {};
-                    const nums = rowNums(x);
-                    return (
-                      <tr key={n}>
-                        <th>{N(n)}</th>
-                        <td className="rp-surah">{x.surah}</td>
-                        {nums.map((val, k) => (
-                          <td key={k}>{k >= 23 ? (val ? '✓' : '') : show(val)}</td>
-                        ))}
-                      </tr>
-                    );
-                  })}
-                  <tr className="rp-total">
-                    <th>{L('মোট', 'Total')}</th>
-                    <td />
-                    {sums.map((val, k) => (
-                      <td key={k}>{show(Math.round(val * 10) / 10)}</td>
-                    ))}
-                  </tr>
-                </tbody>
-              </table>
-            </Sheet>
+            <Sheet
+              landscape
+              compact
+              title={L('দৈনিক রিপোর্ট', 'Daily report')}
+              file={'report-daily-' + ym}
+              pages={[
+                { sub: `${monthName} · ${D('1-16')}`, body: bookPage(1, 16, false) },
+                { sub: `${monthName} · ${D('17-' + count)}`, body: bookPage(17, count, true) },
+              ]}
+            />
           )}
         </>
       )}
