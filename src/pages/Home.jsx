@@ -1,6 +1,7 @@
 import { useApp, getDay, getMonth, ensureDay, streak } from '../store.jsx';
 import { today, toMin, span, fmtDate, fmtTime, daysBetween } from '../utils.js';
 import { Check, Bar } from '../components/ui.jsx';
+import { reportStatus } from '../report.js';
 
 const sum = (a) => a.reduce((s, x) => s + (Number(x.amount) || 0), 0);
 
@@ -29,6 +30,7 @@ export default function Home() {
   const inc = sum(month.income);
   const out = sum(month.expense);
   const pct = month.budget > 0 ? Math.round((out / month.budget) * 100) : null;
+  const rep = data.profile.reportBook ? reportStatus(data, date) : null;
   const nextEvent = data.events.filter((e) => e.date >= date).sort((a, b) => a.date.localeCompare(b.date))[0];
   const nextPlan = data.projects.filter((p) => p.deadline >= date).sort((a, b) => a.deadline.localeCompare(b.deadline))[0];
 
@@ -110,6 +112,13 @@ export default function Home() {
           <strong>{t('glasses', { n: N(day.water) })}</strong>
           <Bar value={day.water} max={8} color="#0e9aa7" />
         </a>
+        {rep && (
+          <a className="stat" href="#report">
+            <span>{t('rp_home')}</span>
+            <strong className={rep.behind ? 'bad' : 'ok'}>{rep.behind ? t('rp_behind', { n: N(rep.behind) }) : rep.hasPlan ? t('rp_ok') : t('rp_noplan')}</strong>
+            <small>{rep.todayDone ? t('rp_today_yes') : t('rp_today_no')}</small>
+          </a>
+        )}
         {nextEvent && (
           <a className="stat" href="#calendar">
             <span>{t('next_date')}</span>

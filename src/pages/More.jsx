@@ -17,6 +17,7 @@ export const TITLE = {
   mood: 'md_title',
   journal: 'j_title',
   books: 'b_title',
+  report: 'rp_title',
   settings: 's_title',
 };
 const SUB = {
@@ -33,6 +34,7 @@ const SUB = {
   mood: 'md_sub',
   journal: 'j_sub',
   books: 'b_sub',
+  report: 'rp_sub',
   settings: 's_backup',
 };
 
@@ -47,7 +49,7 @@ const Tool = ({ k, t }) => (
 );
 
 export default function More() {
-  const { t } = useApp();
+  const { t, data } = useApp();
   return (
     <>
       <PageHead title={t('nav_more')} sub={t('more_sub')} />
@@ -59,7 +61,7 @@ export default function More() {
         <section key={label}>
           <h3 className="group-title">{t(label)}</h3>
           <div className="tools">
-            {keys.map((k) => (
+            {keys.filter((k) => k !== 'report' || data.profile.reportBook).map((k) => (
               <Tool key={k} k={k} t={t} />
             ))}
           </div>

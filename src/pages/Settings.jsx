@@ -99,6 +99,17 @@ export default function Settings() {
             </div>
           </Card>
 
+          <Card title={t('s_report')} hint={t('s_report_hint')}>
+            <div className="seg">
+              <button type="button" className={p.reportBook ? 'on' : ''} onClick={() => set('reportBook', true)}>
+                {t('on')}
+              </button>
+              <button type="button" className={!p.reportBook ? 'on' : ''} onClick={() => set('reportBook', false)}>
+                {t('off')}
+              </button>
+            </div>
+          </Card>
+
           <Card title={t('s_install')} hint={t('s_install_hint')}>
             {installEvt && (
               <button
