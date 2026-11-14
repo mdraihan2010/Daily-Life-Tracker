@@ -1,0 +1,94 @@
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { T } from './i18n.js';
+import { today, addDays, num } from './utils.js';
+
+// All user data lives in ONE plain object saved in localStorage.
+// Later, a login + cloud sync layer only has to upload/download this object.
+const KEY = 'dlt:v1';
+
+export const blank = () => ({
+  v: 1,
+  profile: { name: '', persona: '', org: '', detail: '', lang: 'bn', theme: 'light', onboarded: false },
+  planner: {}, // { '2026-11-14': day }
+  routine: [], // [{ id, start, end, title, cat }]
+  habits: { title: '', start: today(), days: 30, reward: '', list: [], ticks: {} },
+  money: {}, // { '2026-11': month }
+});
+
+const load = () => {
+  try {
+    const d = JSON.parse(localStorage.getItem(KEY));
+    if (d && d.v === 1) return { ...blank(), ...d };
+  } catch {
+    /* ignore broken data */
+  }
+  return blank();
+};
+
+export const newDay = () => ({
+  top: [0, 1, 2].map(() => ({ text: '', done: false })),
+  todos: [],
+  timed: [],
+  water: 0,
+  gratitude: '',
+});
+export const getDay = (d, date) => d.planner[date] || newDay();
+export const ensureDay = (d, date) => (d.planner[date] ??= newDay());
+
+export const newMonth = () => ({ budget: 0, goal: 0, income: [], expense: [] });
+export const getMonth = (d, m) => d.money[m] || newMonth();
+export const ensureMonth = (d, m) => (d.money[m] ??= newMonth());
+
+// How many days in a row a habit has been done (counting back from today)
+export const streak = (ticks, id) => {
+  const tk = ticks[id] || {};
+  let d = today();
+  if (!tk[d]) d = addDays(d, -1);
+  let n = 0;
+  while (tk[d]) {
+    n++;
+    d = addDays(d, -1);
+  }
+  return n;
+};
+
+const Ctx = createContext(null);
+
+export function AppProvider({ children }) {
+  const [data, setData] = useState(load);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(data));
+    } catch {
+      /* storage full or blocked */
+    }
+  }, [data]);
+
+  const lang = data.profile.lang;
+  const api = useMemo(
+    () => ({
+      data,
+      lang,
+      update: (fn) =>
+        setData((d) => {
+          const n = structuredClone(d);
+          fn(n);
+          return n;
+        }),
+      replace: setData,
+      t: (k, vars) => {
+        let s = (T[k] || [k, k])[lang === 'bn' ? 0 : 1];
+        if (vars) for (const [a, b] of Object.entries(vars)) s = s.replace('{' + a + '}', b);
+        return s;
+      },
+      N: (n) => num(n, lang),
+      M: (n) => '৳' + num(Math.round(n || 0), lang),
+    }),
+    [data, lang]
+  );
+
+  return <Ctx.Provider value={api}>{children}</Ctx.Provider>;
+}
+
+export const useApp = () => useContext(Ctx);
