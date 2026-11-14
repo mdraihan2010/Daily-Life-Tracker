@@ -18,6 +18,11 @@ Plan your day, build habits, keep a routine and track money. Every page can also
 | Weekly planner | Seven days of tasks on one page, with a weekly focus and notes. |
 | Monthly calendar | Exams, meetings, bills and birthdays, colour-coded. Week can start on Saturday, Sunday or Monday. |
 | Project/Exam planner | Countdown to a deadline, steps with due dates, progress and timeline. Several plans at once. |
+| Savings & debt | Emergency fund, savings goals, debts with remaining amount and months to clear. |
+| Mood & sleep | One tap per day for mood, hours slept, monthly average. |
+| Journal | Three things to be grateful for each day, best moment, weekly review. |
+| Books & learning | Yearly reading target, bookshelf with status and rating, course/skill progress. |
+| Guide | Short, practical tips for each area with a link to the matching tool. |
 | Settings | Bangla / English, light / dark, backup and restore, erase all. |
 
 - **Bangla + English** – switch any time from Settings.
@@ -46,6 +51,7 @@ src/
   store.jsx         all data in one object, saved to localStorage
   i18n.js           every on-screen text: key -> [Bangla, English]
   personas.js       personas + sample data for each
+  guide.js          text of the Guide page
   utils.js          date, time and number helpers
   components/
     ui.jsx          small shared pieces (Card, Check, Tabs, Ring chart ...)
@@ -58,6 +64,5 @@ Add one line in `src/i18n.js`: `my_key: ['বাংলা লেখা', 'Englis
 
 ## Roadmap
 
-- **Phase 2 (remaining tools):** savings & debt, mood & sleep, journal, books & learning, guideline page.
 - **Phase 3 – accounts:** login + cloud sync (Node/Express + MongoDB). The whole user state is already one JSON object (`store.jsx`), so sync only needs to upload and download that object.
 - **Phase 4:** reminders/notifications, Play Store package.

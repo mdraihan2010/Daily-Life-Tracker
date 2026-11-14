@@ -17,6 +17,10 @@ export const blank = () => ({
   events: [], // [{ id, date, title, type }]
   monthNotes: {}, // { '2026-11': 'text' }
   projects: [], // [{ id, name, goal, start, deadline, steps: [{ id, text, due, done }], notes }]
+  savings: { emergency: { monthly: 0, months: 3, saved: 0 }, goals: [], debts: [] }, // goals: [{ id, title, target, saved }], debts: [{ id, who, total, paid, monthly }]
+  mood: { target: 8, days: {} }, // days: { '2026-11-14': { mood: 1..5, sleep: 7.5, note } }
+  journal: { days: {}, weeks: {} }, // days: { date: { g: ['', '', ''], best } }, weeks: { weekStart: ['', '', ''] }
+  books: {}, // { 2026: { target, list: [{ id, title, author, status, rating }], skills: [{ id, name, source, pct }] } }
   goals: {}, // { 2026: { word, list: [{ id, title, area, by, why, steps: [{ text, done }] }], months: {} } }
 });
 

@@ -10,6 +10,11 @@ import Goals from './pages/Goals.jsx';
 import Routine from './pages/Routine.jsx';
 import Habits from './pages/Habits.jsx';
 import Money from './pages/Money.jsx';
+import Savings from './pages/Savings.jsx';
+import Mood from './pages/Mood.jsx';
+import Journal from './pages/Journal.jsx';
+import Books from './pages/Books.jsx';
+import Guide from './pages/Guide.jsx';
 import More from './pages/More.jsx';
 import Settings from './pages/Settings.jsx';
 
@@ -23,15 +28,22 @@ const PAGES = {
   weekly: Weekly,
   calendar: Calendar,
   project: Project,
+  savings: Savings,
+  mood: Mood,
+  journal: Journal,
+  books: Books,
+  guide: Guide,
   more: More,
   settings: Settings,
 };
 
 // Sidebar (desktop) shows every group. Bottom bar (mobile) shows only MOBILE.
 export const GROUPS = [
-  [null, ['home']],
-  ['grp_daily', ['daily', 'routine', 'habits', 'money']],
+  [null, ['home', 'guide']],
+  ['grp_daily', ['daily', 'routine', 'habits']],
   ['grp_plan', ['goals', 'weekly', 'calendar', 'project']],
+  ['grp_money', ['money', 'savings']],
+  ['grp_life', ['mood', 'journal', 'books']],
   [null, ['more', 'settings']],
 ];
 const MOBILE = ['home', 'daily', 'habits', 'money', 'more'];
@@ -46,6 +58,11 @@ export const ICONS = {
   weekly: 'M4 5h16v14H4zM9.3 5v14M14.6 5v14',
   calendar: 'M4 6h16v14H4zM4 10.5h16M8 3v5M16 3v5',
   project: 'M6 21V4h12l-2.5 4 2.5 4H6',
+  savings: 'M12 4a8 3 0 1 0 0 6 8 3 0 0 0 0-6zM4 7v5c0 1.7 3.6 3 8 3s8-1.3 8-3V7M4 12v5c0 1.7 3.6 3 8 3s8-1.3 8-3v-5',
+  mood: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM8.5 14a4 4 0 0 0 7 0M9 9.5v.5M15 9.5v.5',
+  journal: 'M6 3h12v18H6zM9 8h6M9 12h6M9 16h3',
+  books: 'M4 5h6a2 2 0 0 1 2 2v12a2 2 0 0 0-2-2H4zM20 5h-6a2 2 0 0 0-2 2v12a2 2 0 0 1 2-2h6z',
+  guide: 'M12 3a6 6 0 0 0-3.5 10.9V16h7v-2.1A6 6 0 0 0 12 3zM9.5 19h5M10.5 21.5h3',
   more: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
   settings: 'M4 7h9M17 7h3M4 17h3M11 17h9M15 5v4M9 15v4',
 };
