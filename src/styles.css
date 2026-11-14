@@ -11,7 +11,7 @@
   --ok: #17865a;
   --bad: #c9354e;
   --radius: 14px;
-  --font: 'Hind Siliguri', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font: 'Noto Sans Bengali', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 [data-theme='dark'] {
   --bg: #11141c;
