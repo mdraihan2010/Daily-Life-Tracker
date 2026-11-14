@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useApp } from '../store.jsx';
 
-export const Card = ({ title, hint, right, children, className = '' }) => (
-  <section className={'card ' + className}>
+// `tone` is the colour of the heading band (any CSS colour). Without it the app's main colour is used.
+export const Card = ({ title, hint, right, children, className = '', tone }) => (
+  <section className={'card ' + (title ? 'has-head ' : '') + className} style={tone ? { '--tone': tone } : undefined}>
     {title && (
       <header className="card-h">
         <div>

@@ -42,8 +42,7 @@ export default function Goals() {
           </p>
           <div className="cols">
             {g.list.map((goal, i) => (
-              <Card key={goal.id} className="goal-card" title={t('g_goal', { n: N(i + 1) })} right={<Del onClick={() => up((x) => x.list.splice(i, 1))} />}>
-                <i className="goal-stripe" style={{ background: GOAL_AREAS[goal.area] }} />
+              <Card key={goal.id} tone={GOAL_AREAS[goal.area]} title={t('g_goal', { n: N(i + 1) })} right={<Del onClick={() => up((x) => x.list.splice(i, 1))} />}>
                 <Field label={t('g_what')}>
                   <input value={goal.title} onChange={(e) => up((x) => (x.list[i].title = e.target.value))} />
                 </Field>

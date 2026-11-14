@@ -96,6 +96,17 @@ button, input, select, textarea { font: inherit; color: inherit; }
 /* ---------- pieces ---------- */
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; }
 .card-h { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+/* coloured heading band */
+.card.has-head { --tone: var(--pri); overflow: hidden; border-color: color-mix(in srgb, var(--tone) 28%, var(--line)); }
+.card.has-head > .card-h {
+  margin: -18px -18px 14px; padding: 10px 18px; align-items: center;
+  background: color-mix(in srgb, var(--tone) 13%, var(--surface));
+  border-bottom: 1px solid color-mix(in srgb, var(--tone) 28%, var(--line));
+}
+.card.has-head > .card-h h3 { color: color-mix(in srgb, var(--tone) 62%, var(--ink)); display: flex; align-items: center; gap: 8px; }
+.card.has-head > .card-h h3::before { content: ''; flex: none; width: 10px; height: 10px; border-radius: 3px; background: var(--tone); }
+.card.has-head:focus-within { border-color: var(--tone); box-shadow: 0 0 0 3px color-mix(in srgb, var(--tone) 14%, transparent); }
+.card.has-head > .card-h .hint { color: color-mix(in srgb, var(--tone) 30%, var(--muted)); }
 
 input, select, textarea {
   width: 100%; min-height: 44px; padding: 9px 12px;

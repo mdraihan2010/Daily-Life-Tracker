@@ -38,6 +38,9 @@ function Input({ f, value, onChange, i, max, stepper }) {
   );
 }
 
+// heading colour of each section
+const TONE = { quran: '#17865a', hadith: '#0b7f8a', lit: '#6d4de0', text: '#2f4bd8', namaz: '#17865a', contact: '#b83280', org: '#b06f0a', dist: '#c9354e', growth: '#3f8f2f', bm: '#8a6d1f', misc: '#5f6b80', advice: '#2f4bd8', who: '#2f4bd8', subs: '#0b7f8a', dawah: '#b83280', skill: '#6d4de0' };
+
 function SpecForm({ spec, values, set, i, mode }) {
   return spec
     .filter((sec) => !sec.only || sec.only === mode)
@@ -45,7 +48,7 @@ function SpecForm({ spec, values, set, i, mode }) {
       const fields = mode === 'report' ? sec.fields.filter((f) => !f.auto) : sec.fields;
       if (!fields.length) return null;
       return (
-        <Card key={sec.id} title={sec.title[i]}>
+        <Card key={sec.id} title={sec.title[i]} tone={TONE[sec.id]}>
           <div className="spec-grid">
             {fields.map((f) => (
               <Input key={f.k} f={f} i={i} value={values[f.k]} onChange={(v) => set(f.k, v)} />
@@ -358,13 +361,13 @@ export default function Report() {
 
               <div className="cols">
                 <div>
-                  <Card title={L('অধ্যয়ন', 'Study')} right={badge(parts[0])}>
+                  <Card tone={TONE.quran} title={L('অধ্যয়ন', 'Study')} right={badge(parts[0])}>
                     {dayGrid(DAY_STUDY)}
                   </Card>
-                  <Card title={L('ক্লাস', 'Classes')} right={badge(parts[1])}>
+                  <Card tone={TONE.text} title={L('ক্লাস', 'Classes')} right={badge(parts[1])}>
                     {dayGrid(DAY_CLASS)}
                   </Card>
-                  <Card title={L('নামাজ', 'Prayer')} hint={L('প্রতিটা ওয়াক্তে চাপ দিয়ে বেছে নাও: জামায়াতে পড়েছ নাকি কাজা হয়েছে।', 'Tap each prayer: offered in congregation, or missed.')} right={badge(parts[2])}>
+                  <Card tone={TONE.hadith} title={L('নামাজ', 'Prayer')} hint={L('প্রতিটা ওয়াক্তে চাপ দিয়ে বেছে নাও: জামায়াতে পড়েছ নাকি কাজা হয়েছে।', 'Tap each prayer: offered in congregation, or missed.')} right={badge(parts[2])}>
                     <div className="waqts">
                       {WAQTS.map(([id, bn, en]) => (
                         <div className={'waqt' + (nz[id] ? ' ' + nz[id] : '')} key={id}>
@@ -382,10 +385,10 @@ export default function Report() {
                       {L('জামায়াত', 'In congregation')}: <b className="ok">{N(d.jam || 0)}</b> / {N(5)} · {L('কাজা', 'Missed')}: <b className={d.kaza ? 'bad' : ''}>{N(d.kaza || 0)}</b>
                     </p>
                   </Card>
-                  <Card title={L('সাংগঠনিক দায়িত্ব পালন', 'Organisational duties')} right={badge(parts[3])}>
+                  <Card tone={TONE.org} title={L('সাংগঠনিক দায়িত্ব পালন', 'Organisational duties')} right={badge(parts[3])}>
                     {dayGrid(DAY_ORG)}
                   </Card>
-                  <Card title={L('আজ করেছি', 'Done today')} right={badge(parts[4])}>
+                  <Card tone={TONE.lit} title={L('আজ করেছি', 'Done today')} right={badge(parts[4])}>
                     <ul className="list">
                       {DAY_CHECKS.map(([k, bn, en]) => (
                         <li key={k} className={d[k] ? 'done' : ''}>
@@ -397,10 +400,10 @@ export default function Report() {
                   </Card>
                 </div>
                 <div>
-                  <Card title={L('যোগাযোগ (জন)', 'Contacts (people)')} right={badge(parts[5])}>
+                  <Card tone={TONE.contact} title={L('যোগাযোগ (জন)', 'Contacts (people)')} right={badge(parts[5])}>
                     {dayGrid(CONTACTS.map((c) => asField(c, 'ct_')))}
                   </Card>
-                  <Card title={L('বিতরণ (টি)', 'Distribution (pcs)')} right={badge(parts[6])}>
+                  <Card tone={TONE.dist} title={L('বিতরণ (টি)', 'Distribution (pcs)')} right={badge(parts[6])}>
                     {dayGrid(DIST.map((c) => asField(c, 'ds_')))}
                   </Card>
                 </div>
@@ -563,7 +566,7 @@ export default function Report() {
           </Card>
           <h3 className="group-title">{L('রিপোর্টের অংশগুলো', 'Parts of the report')}</h3>
           {ABOUT.map(([title, why, how], k) => (
-            <Card key={title[1]} title={`${N(k + 1)}. ${title[i]}`}>
+            <Card key={title[1]} title={`${N(k + 1)}. ${title[i]}`} tone={Object.values(TONE)[k % 10]}>
               <p>{why[i]}</p>
               <p className="about-how">
                 <strong>{L('অ্যাপে যা লিখবে:', 'What to write in the app:')}</strong> {how[i]}
