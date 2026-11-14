@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { T } from './i18n.js';
 import { today, addDays, num } from './utils.js';
 
@@ -67,9 +67,17 @@ const Ctx = createContext(null);
 export function AppProvider({ children }) {
   const [data, setData] = useState(load);
 
+  const [savedAt, setSavedAt] = useState(0); // changes every time something is saved (drives the "Saved" toast)
+  const lastJson = useRef(null);
+
   useEffect(() => {
+    const json = JSON.stringify(data);
+    if (json === lastJson.current) return;
+    const first = lastJson.current === null;
+    lastJson.current = json;
     try {
-      localStorage.setItem(KEY, JSON.stringify(data));
+      localStorage.setItem(KEY, json);
+      if (!first) setSavedAt(Date.now());
     } catch {
       /* storage full or blocked */
     }
@@ -80,6 +88,7 @@ export function AppProvider({ children }) {
     () => ({
       data,
       lang,
+      savedAt,
       update: (fn) =>
         setData((d) => {
           const n = structuredClone(d);
@@ -95,7 +104,7 @@ export function AppProvider({ children }) {
       N: (n) => num(n, lang),
       M: (n) => '৳' + num(Math.round(n || 0), lang),
     }),
-    [data, lang]
+    [data, lang, savedAt]
   );
 
   return <Ctx.Provider value={api}>{children}</Ctx.Provider>;

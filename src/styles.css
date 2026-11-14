@@ -63,6 +63,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .nav-item:hover { background: var(--bg); color: var(--ink); }
 .nav-item.on { background: var(--pri-soft); color: var(--pri); font-weight: 600; }
 .main { min-width: 0; padding: 28px clamp(16px, 4vw, 44px) 60px; max-width: 1180px; width: 100%; }
+.main > .page-in { animation: page-in 0.22s ease-out; }
+@keyframes page-in { from { opacity: 0; transform: translateY(6px); } }
 
 .page-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
 .cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
@@ -345,6 +347,61 @@ details.card > summary { cursor: pointer; font-weight: 600; }
 .about-list { margin: 0; padding-left: 22px; }
 .about-list li { margin-bottom: 8px; }
 
+/* ---------- motion and feedback ---------- */
+.btn, .chip, .check, .del, .nav-item, .tool, .stat, .persona, .tabs button, .seg button, .daychips button, .glass, .card, input, select, textarea {
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s, transform 0.1s;
+}
+.btn:active, .chip:active, .check:active, .del:active, .persona:active, .daychips button:active, .glass:active, .stepper button:active, .waqt button:active { transform: scale(0.95); }
+a.stat:hover, .tool:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(20, 24, 40, 0.08); }
+.btn.primary:hover { filter: brightness(1.08); }
+.del:hover { background: var(--bad); border-color: var(--bad); color: #fff; }
+.check:hover:not(:disabled) { border-color: var(--ok); }
+.check.on { animation: pop 0.22s ease-out; }
+@keyframes pop { 50% { transform: scale(1.2); } }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--pri); box-shadow: 0 0 0 3px var(--pri-soft); background: var(--surface); }
+.bar i { transition: width 0.4s ease; }
+.list li, .row.done input { transition: color 0.2s; }
+.toast {
+  position: fixed; right: 20px; bottom: 20px; z-index: 30; pointer-events: none;
+  background: var(--ink); color: var(--bg); padding: 8px 16px; border-radius: 99px; font-weight: 600; font-size: 0.9rem;
+  opacity: 0; transform: translateY(10px); transition: opacity 0.2s, transform 0.2s;
+}
+.toast.show { opacity: 1; transform: none; }
+@media (max-width: 860px) { .toast { bottom: 84px; right: 50%; transform: translate(50%, 10px); } .toast.show { transform: translate(50%, 0); } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* report: daily entry */
+.daybar { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin: 4px 0 16px; padding: 14px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.daybar > div:first-child { flex: 1; min-width: 220px; }
+.daybar .bar { margin-top: 6px; max-width: 360px; }
+.daybar-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.badge-ok, .badge-no { font-size: 0.78rem; border-radius: 99px; padding: 2px 10px; white-space: nowrap; }
+.badge-ok { background: color-mix(in srgb, var(--ok) 16%, transparent); color: var(--ok); font-weight: 600; }
+.badge-no { background: var(--bg); color: var(--muted); }
+.step-grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+@media (max-width: 560px) { .step-grid { grid-template-columns: 1fr 1fr; gap: 0 10px; } .stepper { grid-template-columns: 34px 1fr 34px !important; } }
+.stepper { display: grid; grid-template-columns: 40px 1fr 40px; }
+.stepper input { border-radius: 0; text-align: center; padding: 9px 4px; -moz-appearance: textfield; appearance: textfield; }
+.stepper input::-webkit-outer-spin-button, .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.stepper button { border: 1px solid var(--line); background: var(--surface); font-size: 1.2rem; font-weight: 700; cursor: pointer; color: var(--pri); }
+.stepper button:first-child { border-radius: 10px 0 0 10px; border-right: 0; }
+.stepper button:last-child { border-radius: 0 10px 10px 0; border-left: 0; }
+.stepper button:hover:not(:disabled) { background: var(--pri-soft); }
+.stepper button:disabled { color: var(--muted); opacity: 0.5; cursor: default; }
+.field.filled > span { color: var(--ok); font-weight: 600; }
+.field.filled input { border-color: color-mix(in srgb, var(--ok) 55%, var(--line)); }
+.waqts { display: grid; gap: 8px; }
+.waqt { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; padding: 6px 8px 6px 14px; border: 1.5px solid var(--line); border-radius: 12px; transition: border-color 0.15s, background-color 0.15s; }
+.waqt.j { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 9%, transparent); }
+.waqt.k { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 8%, transparent); }
+.waqt button { min-height: 38px; padding: 4px 14px; border-radius: 9px; border: 1.5px solid var(--line); background: var(--surface); cursor: pointer; font-weight: 600; color: var(--muted); transition: background-color 0.15s, color 0.15s, border-color 0.15s, transform 0.1s; }
+.waqt button.j[aria-pressed='true'] { background: var(--ok); border-color: var(--ok); color: #fff; }
+.waqt button.k[aria-pressed='true'] { background: var(--bad); border-color: var(--bad); color: #fff; }
+.waqt button.j:hover { border-color: var(--ok); }
+.waqt button.k:hover { border-color: var(--bad); }
+.waqt-sum { margin-top: 10px; color: var(--muted); }
+.daychips button:hover:not(:disabled) { border-color: var(--pri); }
+
 /* ---------- A4 print sheet (always light, fixed size) ---------- */
 .sheet-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
 .sheet-scroll { overflow: auto; border-radius: 6px; box-shadow: 0 2px 18px rgba(20, 24, 40, 0.14); background: #fff; }
@@ -502,7 +559,7 @@ details.card > summary { cursor: pointer; font-weight: 600; }
   .sheet, .sheet * { visibility: visible; }
   .sheet { position: absolute; left: 0; top: 0; width: 210mm; min-height: 296mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .sheet-scroll { overflow: visible; box-shadow: none; }
-  .nav, .sheet-actions, .page-head, .datebar, .plan-chips, .tabs-scroll, .tabs { display: none; }
+  .nav, .sheet-actions, .page-head, .datebar, .plan-chips, .tabs-scroll, .tabs, .toast { display: none; }
   .main { padding: 0; max-width: none; }
   .shell { display: block; }
 }

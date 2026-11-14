@@ -76,6 +76,22 @@ export const Icon = ({ name }) => (
   </svg>
 );
 
+function SavedToast() {
+  const { savedAt, t } = useApp();
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    if (!savedAt) return;
+    setShow(true);
+    const id = setTimeout(() => setShow(false), 1400);
+    return () => clearTimeout(id);
+  }, [savedAt]);
+  return (
+    <div className={'toast' + (show ? ' show' : '')} role="status" aria-live="polite">
+      ✓ {t('saved')}
+    </div>
+  );
+}
+
 function useHash() {
   const read = () => location.hash.replace('#', '') || 'home';
   const [h, setH] = useState(read);
@@ -131,8 +147,11 @@ export default function App() {
         ))}
       </nav>
       <main className="main">
-        <Page />
+        <div className="page-in" key={page}>
+          <Page />
+        </div>
       </main>
+      <SavedToast />
     </div>
   );
 }

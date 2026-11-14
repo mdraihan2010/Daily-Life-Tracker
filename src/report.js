@@ -58,17 +58,37 @@ export const DAY_STUDY = [
   n('hadith', 'হাদিস (সংখ্যা)', 'Hadith (count)'),
   n('litI', 'ইসলামী সাহিত্য (পৃষ্ঠা)', 'Islamic literature (pages)'),
   n('litO', 'অন্যান্য সাহিত্য (পৃষ্ঠা)', 'Other literature (pages)'),
-  n('text', 'পাঠ্যপুস্তক (ঘণ্টা)', 'Textbook study (hours)'),
+  { ...n('text', 'পাঠ্যপুস্তক (ঘণ্টা)', 'Textbook study (hours)'), st: 0.5 },
 ];
-export const DAY_CLASS = [
-  n('cls', 'ক্লাস (সংখ্যা)', 'Classes held'),
-  n('att', 'ক্লাসে উপস্থিতি', 'Classes attended'),
-  n('jam', 'জামায়াতে নামাজ (ওয়াক্ত)', 'Prayers in congregation'),
-  n('kaza', 'কাজা (ওয়াক্ত)', 'Missed prayers (kaza)'),
+export const DAY_CLASS = [n('cls', 'আজ কয়টা ক্লাস ছিল', 'Classes held today'), n('att', 'কয়টায় উপস্থিত ছিলে', 'Classes attended')];
+// the five daily prayers; each one is marked "in congregation" (j) or "missed" (k)
+export const WAQTS = [
+  ['fajr', 'ফজর', 'Fajr'],
+  ['zuhr', 'যোহর', 'Zuhr'],
+  ['asr', 'আসর', 'Asr'],
+  ['maghrib', 'মাগরিব', 'Maghrib'],
+  ['isha', 'এশা', 'Isha'],
 ];
+// older entries only have the two counts, so rebuild a per-prayer view from them
+export const prayerState = (d = {}) => {
+  if (d.nz) return d.nz;
+  const out = {};
+  let j = Number(d.jam) || 0;
+  let k = Number(d.kaza) || 0;
+  for (const [id] of WAQTS) {
+    if (j > 0) {
+      out[id] = 'j';
+      j--;
+    } else if (k > 0) {
+      out[id] = 'k';
+      k--;
+    }
+  }
+  return out;
+};
 export const DAY_ORG = [
-  n('dawah', 'দাওয়াতি কাজ (ঘণ্টা)', 'Dawah work (hours)'),
-  n('org', 'অন্যান্য সাংগঠনিক কাজ (ঘণ্টা)', 'Other organisational work (hours)'),
+  { ...n('dawah', 'দাওয়াতি কাজ (ঘণ্টা)', 'Dawah work (hours)'), st: 0.5 },
+  { ...n('org', 'অন্যান্য সাংগঠনিক কাজ (ঘণ্টা)', 'Other organisational work (hours)'), st: 0.5 },
 ];
 export const DAY_CHECKS = [
   ['paper', 'পত্রিকা পাঠ', 'Read newspaper'],

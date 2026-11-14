@@ -202,6 +202,7 @@ export const T = {
   print: ['প্রিন্ট', 'Print'],
   working: ['তৈরি হচ্ছে…', 'Preparing…'],
   add: ['যোগ করো', 'Add'],
+  saved: ['সেভ হয়েছে', 'Saved'],
   today: ['আজ', 'Today'],
   made_on: ['তৈরি: {d}', 'Created: {d}'],
   hours_short: ['ঘ.', 'h'],

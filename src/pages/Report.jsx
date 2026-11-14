@@ -3,26 +3,36 @@ import { useApp } from '../store.jsx';
 import { today, parse, loc, fmtDate } from '../utils.js';
 import { Card, Check, Tabs, PageHead, Bar } from '../components/ui.jsx';
 import Sheet from '../components/Sheet.jsx';
-import { MONTH_SPEC, ANNUAL_SPEC, CONTACTS, DIST, GROWTH, DAY_STUDY, DAY_CLASS, DAY_ORG, DAY_CHECKS, TABLE_GROUPS, daysIn, newMonthRep, getMonthRep, totals, rowNums, elapsedDays, track } from '../report.js';
+import { MONTH_SPEC, ANNUAL_SPEC, CONTACTS, DIST, GROWTH, DAY_STUDY, DAY_CLASS, DAY_ORG, DAY_CHECKS, WAQTS, prayerState, TABLE_GROUPS, daysIn, newMonthRep, getMonthRep, totals, rowNums, elapsedDays, track } from '../report.js';
 
 // one labelled input; empty value removes the key so "nothing written" stays empty
-function Input({ f, value, onChange, i, max }) {
+function Input({ f, value, onChange, i, max, stepper }) {
   const label = f.l[i] + (f.u ? ` (${f.u[i]})` : '');
+  const clamp = (x) => Math.min(max ?? Infinity, Math.max(0, x));
+  const bump = (dir) => {
+    const next = clamp(Math.round(((Number(value) || 0) + dir * (f.st || 1)) * 10) / 10);
+    onChange(next === 0 ? undefined : next);
+  };
+  const number = (
+    <input type="number" min="0" max={max} step="any" inputMode="decimal" value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : clamp(Number(e.target.value) || 0))} />
+  );
   return (
-    <label className="field">
+    <label className={'field' + (value !== undefined ? ' filled' : '')}>
       <span>{label}</span>
-      {f.t === 'n' ? (
-        <input
-          type="number"
-          min="0"
-          max={max}
-          step="any"
-          inputMode="decimal"
-          value={value ?? ''}
-          onChange={(e) => onChange(e.target.value === '' ? undefined : Math.min(max ?? Infinity, Math.max(0, Number(e.target.value) || 0)))}
-        />
-      ) : (
+      {f.t !== 'n' ? (
         <input value={value ?? ''} onChange={(e) => onChange(e.target.value || undefined)} />
+      ) : stepper ? (
+        <div className="stepper">
+          <button type="button" onClick={() => bump(-1)} disabled={!value} aria-label={'− ' + label}>
+            −
+          </button>
+          {number}
+          <button type="button" onClick={() => bump(1)} aria-label={'+ ' + label}>
+            +
+          </button>
+        </div>
+      ) : (
+        number
       )}
     </label>
   );
@@ -114,6 +124,7 @@ export default function Report() {
   const [ym, setYm] = useState(today().slice(0, 7));
   const [day, setDay] = useState(Number(today().slice(8)));
   const [year, setYear] = useState(new Date().getFullYear());
+  const [sureClear, setSureClear] = useState(false);
 
   if (!data.profile.reportBook)
     return (
@@ -152,13 +163,41 @@ export default function Report() {
   const asField = ([k, bn, en], pre) => ({ k: pre + k, l: [bn, en], t: 'n' });
   const show = (x) => (x ? N(x) : '');
 
-  const dayGrid = (fields, max5) => (
-    <div className="spec-grid">
+  const dayGrid = (fields) => (
+    <div className="spec-grid step-grid">
       {fields.map((f) => (
-        <Input key={f.k} f={f} i={i} value={d[f.k]} max={max5 && (f.k === 'jam' || f.k === 'kaza') ? 5 : undefined} onChange={(val) => setDayVal(f.k, val)} />
+        <Input key={f.k} f={f} i={i} stepper value={d[f.k]} onChange={(val) => setDayVal(f.k, val)} />
       ))}
     </div>
   );
+  // small green tick in a card header once that part of the day has something written
+  const has = (keys) => keys.some((k) => d[k] !== undefined);
+  const badge = (keys) => (has(keys) ? <span className="badge-ok">✓ {L('লেখা হয়েছে', 'Written')}</span> : <span className="badge-no">{L('ফাঁকা', 'Empty')}</span>);
+  const parts = [
+    DAY_STUDY.map((f) => f.k),
+    DAY_CLASS.map((f) => f.k),
+    ['nz', 'jam', 'kaza'],
+    DAY_ORG.map((f) => f.k),
+    DAY_CHECKS.map(([k]) => k),
+    CONTACTS.map(([k]) => 'ct_' + k),
+    DIST.map(([k]) => 'ds_' + k),
+  ];
+  const partsDone = parts.filter(has).length;
+  const nz = prayerState(d);
+  const setPrayer = (id, val) =>
+    upMonth((mm) => {
+      const x = (mm.days[sel] ??= {});
+      const cur = { ...prayerState(x) };
+      if (cur[id] === val) delete cur[id];
+      else cur[id] = val;
+      const cnt = (c) => Object.values(cur).filter((v) => v === c).length;
+      put(x, 'nz', Object.keys(cur).length ? cur : undefined);
+      put(x, 'jam', cnt('j') || undefined);
+      put(x, 'kaza', cnt('k') || undefined);
+    });
+  const prev = m.days[sel - 1];
+  const dayEmpty = Object.keys(d).length === 0;
+  const isFriday = parse(`${ym}-${String(sel).padStart(2, '0')}`).getDay() === 5;
 
   // totals row of the printed table
   const sums = Array(26).fill(0);
@@ -288,14 +327,65 @@ export default function Report() {
                   </button>
                 ))}
               </div>
-              <h3 className="group-title">{fmtDate(`${ym}-${String(sel).padStart(2, '0')}`, lang)}</h3>
+              <div className="daybar">
+                <div>
+                  <h3>{fmtDate(`${ym}-${String(sel).padStart(2, '0')}`, lang)}</h3>
+                  <p className="hint">{L(`৭টা অংশের মধ্যে ${N(partsDone)}টায় লেখা হয়েছে`, `${partsDone} of 7 parts written`)}</p>
+                  <Bar value={partsDone} max={7} color="var(--ok)" />
+                </div>
+                <div className="daybar-actions">
+                  {dayEmpty && prev && Object.keys(prev).length > 0 && (
+                    <button type="button" className="btn" onClick={() => upMonth((mm) => (mm.days[sel] = structuredClone(mm.days[sel - 1])))}>
+                      {L('গতকালের মতো বসাও', "Copy yesterday's entry")}
+                    </button>
+                  )}
+                  {!dayEmpty && (
+                    <button
+                      type="button"
+                      className="btn danger"
+                      onBlur={() => setSureClear(false)}
+                      onClick={() => {
+                        if (!sureClear) return setSureClear(true);
+                        upMonth((mm) => delete mm.days[sel]);
+                        setSureClear(false);
+                      }}
+                    >
+                      {sureClear ? t('s_reset_sure') : L('এই দিনের লেখা মুছো', "Clear this day's entry")}
+                    </button>
+                  )}
+                </div>
+              </div>
 
               <div className="cols">
                 <div>
-                  <Card title={L('অধ্যয়ন', 'Study')}>{dayGrid(DAY_STUDY)}</Card>
-                  <Card title={L('ক্লাস ও নামাজ', 'Classes and prayer')}>{dayGrid(DAY_CLASS, true)}</Card>
-                  <Card title={L('সাংগঠনিক দায়িত্ব পালন', 'Organisational duties')}>{dayGrid(DAY_ORG)}</Card>
-                  <Card title={L('আজ করেছি', 'Done today')}>
+                  <Card title={L('অধ্যয়ন', 'Study')} right={badge(parts[0])}>
+                    {dayGrid(DAY_STUDY)}
+                  </Card>
+                  <Card title={L('ক্লাস', 'Classes')} right={badge(parts[1])}>
+                    {dayGrid(DAY_CLASS)}
+                  </Card>
+                  <Card title={L('নামাজ', 'Prayer')} hint={L('প্রতিটা ওয়াক্তে চাপ দিয়ে বেছে নাও: জামায়াতে পড়েছ নাকি কাজা হয়েছে।', 'Tap each prayer: offered in congregation, or missed.')} right={badge(parts[2])}>
+                    <div className="waqts">
+                      {WAQTS.map(([id, bn, en]) => (
+                        <div className={'waqt' + (nz[id] ? ' ' + nz[id] : '')} key={id}>
+                          <b>{id === 'zuhr' && isFriday ? L('জুমা', 'Jumu\'ah') : L(bn, en)}</b>
+                          <button type="button" className="j" aria-pressed={nz[id] === 'j'} onClick={() => setPrayer(id, 'j')}>
+                            {L('জামায়াত', 'Jamaat')}
+                          </button>
+                          <button type="button" className="k" aria-pressed={nz[id] === 'k'} onClick={() => setPrayer(id, 'k')}>
+                            {L('কাজা', 'Kaza')}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="waqt-sum">
+                      {L('জামায়াত', 'In congregation')}: <b className="ok">{N(d.jam || 0)}</b> / {N(5)} · {L('কাজা', 'Missed')}: <b className={d.kaza ? 'bad' : ''}>{N(d.kaza || 0)}</b>
+                    </p>
+                  </Card>
+                  <Card title={L('সাংগঠনিক দায়িত্ব পালন', 'Organisational duties')} right={badge(parts[3])}>
+                    {dayGrid(DAY_ORG)}
+                  </Card>
+                  <Card title={L('আজ করেছি', 'Done today')} right={badge(parts[4])}>
                     <ul className="list">
                       {DAY_CHECKS.map(([k, bn, en]) => (
                         <li key={k} className={d[k] ? 'done' : ''}>
@@ -307,8 +397,12 @@ export default function Report() {
                   </Card>
                 </div>
                 <div>
-                  <Card title={L('যোগাযোগ (জন)', 'Contacts (people)')}>{dayGrid(CONTACTS.map((c) => asField(c, 'ct_')))}</Card>
-                  <Card title={L('বিতরণ (টি)', 'Distribution (pcs)')}>{dayGrid(DIST.map((c) => asField(c, 'ds_')))}</Card>
+                  <Card title={L('যোগাযোগ (জন)', 'Contacts (people)')} right={badge(parts[5])}>
+                    {dayGrid(CONTACTS.map((c) => asField(c, 'ct_')))}
+                  </Card>
+                  <Card title={L('বিতরণ (টি)', 'Distribution (pcs)')} right={badge(parts[6])}>
+                    {dayGrid(DIST.map((c) => asField(c, 'ds_')))}
+                  </Card>
                 </div>
               </div>
             </>
