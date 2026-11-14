@@ -8,7 +8,8 @@ import { today, fmtDate } from '../utils.js';
 // Several pages: <Sheet ... pages={[{ sub: 'page 1', body: <A /> }, { sub: 'page 2', body: <B /> }]} />
 // landscape  -> the page lies on its side (wide tables)
 // compact    -> a one-line heading and no footer, to leave the whole page for a table
-export default function Sheet({ title, sub, file, children, pages, landscape, compact }) {
+// bare       -> no heading and no footer at all; the content draws its own page (paper forms)
+export default function Sheet({ title, sub, file, children, pages, landscape, compact, bare }) {
   const refs = useRef([]);
   const { data, t, lang } = useApp();
   const [busy, setBusy] = useState(false);
@@ -125,7 +126,8 @@ export default function Sheet({ title, sub, file, children, pages, landscape, co
       </div>
       {list.map((page, k) => (
         <div className="sheet-scroll" key={k}>
-          <div className={'sheet' + (landscape ? ' land' : '') + (compact ? ' compact' : '')} ref={(el) => (refs.current[k] = el)}>
+          <div className={'sheet' + (landscape ? ' land' : '') + (compact ? ' compact' : '') + (bare ? ' bare' : '')} ref={(el) => (refs.current[k] = el)}>
+            {!bare && (
             <header className="sheet-head">
               <div>
                 <h2>{title}</h2>
@@ -137,8 +139,9 @@ export default function Sheet({ title, sub, file, children, pages, landscape, co
                 {p.org && <span>{p.org}</span>}
               </div>
             </header>
+            )}
             <div className="sheet-body">{page.body}</div>
-            {!compact && (
+            {!compact && !bare && (
               <footer className="sheet-foot">
                 <span>{t('app')}</span>
                 <span>{t('made_on', { d: fmtDate(today(), lang, { day: 'numeric', month: 'long', year: 'numeric' }) })}</span>

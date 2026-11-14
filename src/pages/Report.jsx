@@ -308,6 +308,234 @@ export default function Report() {
       </div>
     </div>
   );
+  // ---- "monthly report at a glance", laid out like the page in the paper report book ----
+  const FIELD = Object.fromEntries(MONTH_SPEC.flatMap((sec) => sec.fields.map((f) => [f.k, f])));
+  // value of one field, formatted; empty when nothing is there
+  const g = (k) => {
+    const f = FIELD[k];
+    const val = f ? value(f) : m.extra[k];
+    if (val === undefined || val === '' || val === 0 || Number.isNaN(val)) return '';
+    if (f?.t === 'h') return D(hm(val));
+    if (typeof val === 'number') return N(Math.round(val * 10) / 10);
+    return val;
+  };
+  // organisational work as a whole: days with dawah or other work, and the average time on those days
+  const orgAll = (() => {
+    let days = 0;
+    let hrs = 0;
+    for (let n = 1; n <= count; n++) {
+      const x = m.days[n];
+      const h = (Number(x?.dawah) || 0) + (Number(x?.org) || 0);
+      if (h > 0) {
+        days++;
+        hrs += h;
+      }
+    }
+    return { days: days ? N(days) : '', avg: days ? D(hm(hrs / days)) : '' };
+  })();
+  const litTotal = (Number(value(FIELD.l_islami)) || 0) + (Number(value(FIELD.l_other)) || 0);
+  // dotted line to write on, with the value sitting on it
+  const Dl = ({ v, w = 4 }) => (
+    <span className="dl" style={{ minWidth: w + 'em' }}>
+      {v}
+    </span>
+  );
+  // "label ....value" one after another on a line
+  const Ln = ({ items, bullet = true }) => (
+    <div className="bk-ln">
+      {items.map(([label, v, w, after], k) => (
+        <span key={k} className="bk-it">
+          {bullet && k === 0 ? '• ' : ''}
+          {label}
+          {w > 0 && <Dl v={v} w={w} />}
+          {after}
+        </span>
+      ))}
+    </div>
+  );
+  const U = { day: L('দিন', 'days'), ppl: L('জন', 'people'), pcs: L('টি', 'pcs'), times: L('বার', 'times'), tk: L('টাকা', 'Tk'), waqt: L('ওয়াক্ত', 'waqt') };
+  const glanceBook = (
+    <div className="gb">
+      <p className="gb-bis">{L('বিসমিল্লাহির রাহমানির রাহীম', 'In the name of Allah, the Most Gracious, the Most Merciful')}</p>
+      <div className="gb-top">
+        <span>
+          {L('মাস', 'Month')} : <Dl v={parse(ym + '-01').toLocaleDateString(loc(lang), { month: 'long' })} w={14} />
+        </span>
+        <h2>{L('একনজরে মাসিক রিপোর্ট', 'Monthly Report at a Glance')}</h2>
+        <span>
+          {L('সাল', 'Year')} : <Dl v={D(ym.slice(0, 4))} w={8} />
+        </span>
+      </div>
+
+      <div className="gb-grid">
+        <section>
+          <h4>{L('কুরআন অধ্যয়ন', 'Quran study')}</h4>
+          <Ln items={[[L('মোট দিন', 'Total days'), g('q_days'), 5], [' • ' + L('গড় আয়াত', 'Average ayat'), g('q_avg'), 5]]} />
+          <Ln items={[[L('সূরার নাম', 'Surah names'), g('q_surah'), 7], [' • ' + L('দারস প্রস্তুত', 'Dars prepared'), g('q_dars'), 4]]} />
+          <Ln items={[[L('মুখস্থ : আয়াত', 'Memorised: ayat'), g('q_mem'), 4], [' ; ' + L('অর্থসহ সূরা', 'Surah with meaning'), g('q_memSurah'), 6]]} />
+        </section>
+        <section>
+          <h4>{L('হাদিস অধ্যয়ন', 'Hadith study')}</h4>
+          <Ln items={[[L('মোট দিন', 'Total days'), g('h_days'), 5], [' • ' + L('গড় হাদিস', 'Average hadith'), g('h_avg'), 5]]} />
+          <Ln items={[[L('গ্রন্থ/বিষয়', 'Book/Topic'), g('h_book'), 7], [' • ' + L('দারস প্রস্তুত', 'Dars prepared'), g('h_dars'), 4]]} />
+          <Ln items={[[L('মুখস্থ', 'Memorised'), g('h_mem'), 5], [' ; ' + L('বিষয়', 'Topic'), g('h_topic'), 7]]} />
+        </section>
+
+        <section>
+          <h4>{L('সাহিত্য অধ্যয়ন', 'Literature study')}</h4>
+          <Ln items={[[L('মোট পৃষ্ঠা', 'Total pages'), litTotal ? N(litTotal) : '', 4], [' ' + L('ইসলামী', 'Islamic'), g('l_islami'), 4], [' ' + L('অন্যান্য', 'Other'), g('l_other'), 4]]} />
+          <Ln items={[[L('বইয়ের নাম', 'Book names'), g('l_books'), 14]]} />
+          <div className="bk-ln">
+            <Dl v="" w={20} />
+          </div>
+          <Ln items={[[L('বই নোট', 'Book notes'), g('l_notes'), 5], [' ' + L('আলোচনা নোট', 'Discussion notes'), g('l_disc'), 5]]} />
+        </section>
+        <section>
+          <h4>{L('পাঠ্যপুস্তক অধ্যয়ন', 'Textbook study')}</h4>
+          <Ln items={[[L('মোট দিন', 'Total days'), g('t_days'), 5], [' ' + L('গড় ঘণ্টা', 'Average hours'), g('t_avg'), 5]]} />
+          <Ln bullet={false} items={[[<b key="c">{L('ক্লাসে উপস্থিতি: ', 'Class attendance: ')}</b>, '', 0], [L('মোট ক্লাস', 'Total classes'), g('c_total'), 4], [' ' + L('উপস্থিতি', 'Attended'), g('c_attend'), 4]]} />
+          <h4 className="gb-sub">{L('নামাজ', 'Prayer')}</h4>
+          <Ln items={[[L('জামায়াত', 'In congregation'), g('nz_jam'), 5, ' ' + U.waqt], [' ; ' + L('গড়', 'Average'), g('nz_avg'), 4]]} />
+          <Ln items={[[L('কাজা', 'Missed'), g('nz_kaza'), 5, ' ' + U.waqt]]} />
+        </section>
+
+        <section>
+          <h4>{L('যোগাযোগ', 'Contacts')}</h4>
+          <Ln bullet={false} items={[[L('সদস্য', 'Member'), g('ct_member'), 4], [' ' + L('সাথী', 'Sathi'), g('ct_sathi'), 4], [' ' + L('কর্মী', 'Worker'), g('ct_kormi'), 4]]} />
+          <Ln bullet={false} items={[[L('সমর্থক', 'Supporter'), g('ct_supporter'), 4], [' ' + L('বন্ধু', 'Friend'), g('ct_friend'), 4], [' ' + L('শুভাকাঙ্ক্ষী', 'Well-wisher'), g('ct_wellwisher'), 4]]} />
+          <Ln bullet={false} items={[[L('স্কুল ছাত্র', 'School student'), g('ct_school'), 3], [' ' + L('মেধাবী ছাত্র', 'Bright student'), g('ct_bright'), 3], [' ' + L('শিক্ষক', 'Teacher'), g('ct_teacher'), 3]]} />
+          <Ln bullet={false} items={[[L('মুহাররমা', 'Muharrama'), g('ct_muharrama'), 5], [' ' + L('ভিআইপি', 'VIP'), g('ct_vip'), 5]]} />
+        </section>
+        <section>
+          <h4>{L('সাংগঠনিক দায়িত্বপালন', 'Organisational duties')}</h4>
+          <Ln items={[[L('দিন', 'Days'), orgAll.days, 5], [' ' + L('গড় ঘণ্টা', 'Average hours'), orgAll.avg, 5]]} />
+          <table className="gb-org">
+            <thead>
+              <tr>
+                <th>{L('দাওয়াতি কাজ', 'Dawah work')}</th>
+                <th>{L('অন্যান্য সাংগঠনিক কাজ', 'Other organisational work')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  {L('দিন', 'Days')}
+                  <Dl v={g('o_dawahDays')} w={5} />
+                </td>
+                <td>
+                  {L('দিন', 'Days')}
+                  <Dl v={g('o_otherDays')} w={5} />
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  {L('গড় ঘণ্টা', 'Average hours')}
+                  <Dl v={g('o_dawahAvg')} w={4} />
+                </td>
+                <td>
+                  {L('গড় ঘণ্টা', 'Average hours')}
+                  <Dl v={g('o_otherAvg')} w={4} />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      </div>
+
+      <h4 className="gb-h">{L('বিতরণ', 'Distribution')}</h4>
+      <table className="gb-tbl gb-dist">
+        <tbody>
+          {[
+            ['lit', 'chhatro', 'routine'],
+            ['kishor', 'eng', 'sticker'],
+            ['yw', 'intro', 'gift'],
+          ].map((row) => (
+            <tr key={row[0]}>
+              {row.map((k) => {
+                const it = DIST.find((x) => x[0] === k);
+                return [<th key={k + 'l'}>{L(it[1], it[2])}</th>, <td key={k + 'v'}>{g('ds_' + k)}</td>];
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <h4 className="gb-h">{L('বৃদ্ধি', 'Growth')}</h4>
+      <table className="gb-tbl gb-growth">
+        <tbody>
+          {[
+            ['member', 'kormi'],
+            ['memberC', 'supporter'],
+            ['sathi', 'friend'],
+            ['sathiC', 'wellwisher'],
+          ].map((row) => (
+            <tr key={row[0]}>
+              {row.map((k) => {
+                const it = GROWTH.find((x) => x[0] === k);
+                return [
+                  <th key={k + 'l'}>{L(it[1], it[2])}</th>,
+                  <td key={k + 'n'} className="n">
+                    {g('gr_' + k)}
+                  </td>,
+                  <td key={k + 'v'}>{g('grn_' + k)}</td>,
+                ];
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <h4 className="gb-h">{L('বায়তুলমাল', 'Baitulmal')}</h4>
+      <table className="gb-tbl gb-bm">
+        <tbody>
+          <tr>
+            <th>{L('পরিশোধের তারিখ', 'Payment date')}</th>
+            <td>{g('bm_date')}</td>
+            <th>{L('ব্যক্তিগত বৃদ্ধি', 'Personal increase')}</th>
+            <td>
+              {g('bm_personal')} <i>{U.tk}</i>
+            </td>
+            <th>{L('মোট বৃদ্ধি', 'Total increase')}</th>
+            <td>
+              {g('bm_total')} <i>{U.tk}</i>
+            </td>
+          </tr>
+          <tr>
+            <th>{L('ছাত্রকল্যাণ', 'Student welfare')}</th>
+            <td>
+              {g('bm_welfare')} <i>{U.tk}</i>
+            </td>
+            <th>{L('টেবিল ব্যাংক', 'Table bank')}</th>
+            <td>
+              {g('bm_table')} <i>{U.tk}</i>
+            </td>
+            <th>{L('কলসি/হাঁড়ি', 'Kolsi/Hari')}</th>
+            <td>
+              {g('bm_kolsi')} <i>{U.pcs}</i>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4 className="gb-h">{L('বিবিধ', 'Miscellaneous')}</h4>
+      <div className="gb-misc">
+        <Ln items={[[L('আত্মসমালোচনা', 'Self-criticism'), g('m_self'), 6, U.day], [' • ' + L('শরীরচর্চা', 'Exercise'), g('m_exercise'), 6, U.day], [' • ' + L('পত্রিকা পাঠ', 'Newspaper'), g('m_paper'), 6, U.day]]} />
+        <Ln items={[[L('আত্মীয়স্বজন (পুরুষ) যোগাযোগ', 'Relatives (male) contacted'), g('m_relatives'), 4, U.ppl], [' • ' + L('গ্রুপ দাওয়াতি কাজ', 'Group dawah work'), g('m_group'), 4, U.times], [' • ' + L('দাওয়াতি মেসেজ প্রেরণ', 'Dawah messages sent'), g('m_msg'), 3, U.pcs]]} />
+        <Ln items={[[L('দাওয়াতি ই-মেইল প্রেরণ', 'Dawah e-mails sent'), g('m_email'), 3, U.pcs], [' • ' + L('অমুসলিম বন্ধু যোগাযোগ', 'Non-Muslim friends contacted'), g('m_nonmuslim'), 3, U.ppl], [' • ' + L('বন্ধু সংগঠনের সাথে যোগাযোগ', 'Friendly organisations contacted'), g('m_friendorg'), 3, U.ppl]]} />
+        <Ln items={[[L('দক্ষতা উন্নয়ন কার্যক্রম : কম্পিউটার শিক্ষা', 'Skills: computer learning'), g('m_computer'), 5, U.day], [' • ' + L('ভাষা শিক্ষা', 'Language learning'), g('m_language'), 4, U.day], [' • ' + L('অন্যান্য', 'Other'), g('m_other'), 6]]} />
+        <Ln items={[[L('নিজ উদ্যোগে দায়িত্বশীলকে রিপোর্ট দেখানো হয়েছে', 'Showed the report to the person in charge'), g('m_show'), 4, U.times], [' ; ' + L('তারিখ', 'Date'), g('m_showDate'), 9]]} />
+      </div>
+
+      <div className="gb-foot">
+        <div className="gb-advice">
+          <b>{L('দায়িত্বশীলের পরামর্শ ও স্বাক্ষর', 'Advice and signature of the person in charge')}</b>
+          <p>{m.extra.advice}</p>
+        </div>
+        <b className="gb-sign">{L('স্বাক্ষর ও তারিখ', 'Signature and date')}</b>
+      </div>
+    </div>
+  );
+
   const pair = (f, from) => {
     const val = from ? from[f.k] : value(f);
     const text = val === undefined || val === '' || val === 0 ? '' : f.t === 'h' ? D(hm(val)) : f.t === 'n' ? N(val) : val;
@@ -529,32 +757,8 @@ export default function Report() {
             </div>
           </details>
 
-          <Sheet title={L('একনজরে মাসিক রিপোর্ট', 'Monthly report at a glance')} sub={monthName} file={'report-month-' + ym}>
-            <div className="gl">
-              {['quran', 'hadith', 'lit', 'text', 'namaz', 'org', 'contact', 'dist', 'bm', 'misc'].map((id) => MONTH_SPEC.find((x) => x.id === id)).map((sec) => (
-                <section key={sec.id} className={'gl-sec gl-' + sec.id}>
-                  <h4>{sec.title[i]}</h4>
-                  <div className="gl-grid">{sec.fields.map((f) => pair(f))}</div>
-                </section>
-              ))}
-              <section className="gl-sec gl-wide">
-                <h4>{L('বৃদ্ধি', 'Growth')}</h4>
-                <div className="gl-growth">
-                  {GROWTH.map(([k, bn, en]) => (
-                    <div key={k}>
-                      <span>{L(bn, en)}</span>
-                      <b>{show(m.extra['gr_' + k])}</b>
-                      <em>{m.extra['grn_' + k]}</em>
-                    </div>
-                  ))}
-                </div>
-              </section>
-              <section className="gl-sec gl-wide gl-advice">
-                <h4>{L('দায়িত্বশীলের পরামর্শ ও স্বাক্ষর', 'Advice and signature of the person in charge')}</h4>
-                <p>{m.extra.advice}</p>
-                <span>{L('স্বাক্ষর ও তারিখ', 'Signature and date')}</span>
-              </section>
-            </div>
+          <Sheet bare title={L('একনজরে মাসিক রিপোর্ট', 'Monthly report at a glance')} file={'report-month-' + ym}>
+            {glanceBook}
           </Sheet>
         </>
       )}
