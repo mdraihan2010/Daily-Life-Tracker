@@ -47,13 +47,61 @@ function SpecForm({ spec, values, set, i, mode }) {
 }
 
 const ABOUT = [
-  [['কুরআন ও হাদিস অধ্যয়ন', 'Quran and hadith study'], ['প্রতিদিন নিয়মিত কুরআন ও হাদিস পড়া, বোঝা এবং সে অনুযায়ী নিজেকে গড়ার চেষ্টা। কোন সূরা, কত আয়াত, কয়টা হাদিস পড়লে তা লিখে রাখো।', 'Read and understand the Quran and hadith every day and try to live by them. Note the surah, the number of ayat and the number of hadith.']],
-  [['সাহিত্য অধ্যয়ন', 'Literature study'], ['ইসলামী সাহিত্য ও অন্যান্য বই কত পৃষ্ঠা পড়লে তার হিসাব। মুখস্থ বুলি নয়, বুঝে পড়া ও নোট করার অভ্যাস।', 'Pages of Islamic and other books read. The aim is understanding and note-taking, not memorised lines.']],
-  [['পাঠ্যপুস্তক ও ক্লাস', 'Textbooks and classes'], ['ভালো ছাত্র হওয়া মূল কাজের অংশ। প্রতিদিন কত ঘণ্টা পড়লে আর কয়টা ক্লাসে উপস্থিত ছিলে লেখো।', 'Being a good student is part of the main work. Note hours studied and classes attended each day.']],
-  [['জামায়াতে নামাজ', 'Prayer in congregation'], ['প্রতিদিন কয় ওয়াক্ত জামায়াতে পড়লে আর কয় ওয়াক্ত কাজা হলো তার হিসাব।', 'How many prayers were offered in congregation each day and how many were missed.']],
-  [['যোগাযোগ ও বিতরণ', 'Contacts and distribution'], ['পরিকল্পনা করে কার কার সাথে যোগাযোগ করলে এবং কী কী উপকরণ বিতরণ করলে তার সংখ্যা।', 'Numbers of people you contacted according to plan, and items you distributed.']],
-  [['সাংগঠনিক দায়িত্ব পালন', 'Organisational duties'], ['দাওয়াতি কাজ ও অন্যান্য সাংগঠনিক কাজে কত ঘণ্টা সময় দিলে।', 'Hours given to dawah work and other organisational work.']],
-  [['পত্রিকা পাঠ, শরীরচর্চা, আত্মসমালোচনা', 'Newspaper, exercise, self-criticism'], ['প্রতিদিন খবর জানা, শরীর ঠিক রাখা, আর দিনশেষে নিজের কাজের হিসাব নিজে নেওয়া। করলে টিক দাও।', 'Keep up with the news, look after your body, and review your own day at night. Tick each one you did.']],
+  [
+    ['কুরআন অধ্যয়ন', 'Quran study'],
+    ['ইসলামকে জানার প্রথম উৎস কুরআন, তাই এর সাথে প্রতিদিনের সম্পর্ক রাখাই এই ঘরের উদ্দেশ্য। শুধু তিলাওয়াত নয়, অর্থ ও ব্যাখ্যা বুঝে পড়ার চেষ্টা করো, আর যা পড়লে তা নিজের আচরণে আনার কথা ভাবো।', 'The Quran is the first source for knowing Islam, so this box is about keeping a daily link with it. Try to read with meaning and explanation, not recitation alone, and think about bringing what you read into your own conduct.'],
+    ['প্রতিদিন কোন সূরা আর কত আয়াত পড়লে লেখো। মাসিক পরিকল্পনায় "মোট দিন" আর "গড় আয়াত" দিলে অ্যাপ মাসের লক্ষ্য হিসাব করে নেয়। একটা নির্দিষ্ট সময়ে পুরো কুরআন একবার শেষ করার লক্ষ্য রাখতে পারো।', 'Each day write the surah and the number of ayat. If you give "total days" and "average ayat" in the monthly plan, the app works out the month\'s target. You can aim to finish the whole Quran within a set period.'],
+  ],
+  [
+    ['হাদিস অধ্যয়ন', 'Hadith study'],
+    ['হাদিস কুরআনের ব্যাখ্যা, তাই কুরআনের পাশাপাশি নিয়মিত হাদিস পড়াও দরকার। পড়া হাদিসের সাথে নিজের জীবন মিলিয়ে দেখো: কোনটা মানছ, কোনটা এখনো বাকি।', 'Hadith explains the Quran, so regular hadith reading belongs beside it. Compare what you read with your own life: what you already follow and what is still missing.'],
+    ['প্রতিদিন কয়টা হাদিস পড়লে সেই সংখ্যা লেখো। কোন গ্রন্থ বা বিষয় থেকে পড়ছ, দারস প্রস্তুত আর মুখস্থের হিসাব মাস শেষে "একনজরে" ট্যাবে লিখবে।', 'Write the number of hadith read each day. The book or topic, dars prepared and memorisation are written at the end of the month in the "Month at a glance" tab.'],
+  ],
+  [
+    ['সাহিত্য অধ্যয়ন', 'Literature study'],
+    ['নিজের আদর্শকে ভালোভাবে জানতে এবং সমকালীন অন্যান্য চিন্তাধারা সম্পর্কে ধারণা রাখতে নিয়মিত বই পড়া দরকার। মুখস্থ করা কথা নয়, বুঝে পড়া আর নিজে চিন্তা করতে শেখাই এখানে আসল।', 'Regular reading is needed to know your own ideals well and to understand other ideas of the time. The point is understanding and learning to think for yourself, not repeating memorised lines.'],
+    ['ইসলামী সাহিত্য আর অন্যান্য বই আলাদা ঘরে, কত পৃষ্ঠা পড়লে লেখো। বই শেষ হলে নোট করো; বইয়ের নাম, বই নোট আর আলোচনা নোটের সংখ্যা মাস শেষে লিখবে।', 'Write pages read in separate boxes for Islamic literature and other books. Take notes when you finish a book; book names and the number of book notes and discussion notes go in at the end of the month.'],
+  ],
+  [
+    ['পাঠ্যপুস্তক অধ্যয়ন ও ক্লাসে উপস্থিতি', 'Textbook study and class attendance'],
+    ['ছাত্র হিসেবে ভালো ফল করা তোমার মূল দায়িত্বের অংশ; অন্য কাজের অজুহাতে পড়াশোনার ক্ষতি করা চলবে না। পড়াশোনা আর অন্য দায়িত্বের মধ্যে ভারসাম্য রাখাই লক্ষ্য।', 'Doing well as a student is part of your main responsibility; other work is no excuse for neglecting studies. The goal is balance between study and your other duties.'],
+    ['প্রতিদিন কত ঘণ্টা পাঠ্যবই পড়লে, সেদিন কয়টা ক্লাস ছিল আর কয়টায় উপস্থিত ছিলে লেখো। আধা ঘণ্টা হলে ০.৫ লেখা যায়।', 'Each day write hours of textbook study, how many classes were held and how many you attended. Half an hour can be written as 0.5.'],
+  ],
+  [
+    ['জামায়াতে নামাজ', 'Prayer in congregation'],
+    ['নামাজ আল্লাহর সাথে সম্পর্কের সবচেয়ে বড় মাধ্যম, আর জামায়াতে পড়লে জীবনে শৃঙ্খলা ও সময়ানুবর্তিতা আসে। তাই পাঁচ ওয়াক্তই জামায়াতে পড়ার চেষ্টা থাকবে।', 'Prayer is the strongest link with Allah, and praying in congregation brings discipline and punctuality into life. So the aim is all five prayers in congregation.'],
+    ['প্রতিদিন কয় ওয়াক্ত জামায়াতে পড়লে (০ থেকে ৫) আর কয় ওয়াক্ত কাজা হলো লেখো। এর লক্ষ্য সবসময় দিনে ৫ ওয়াক্ত ধরা, আলাদা করে পরিকল্পনায় লিখতে হয় না। কাজা হলে অ্যাপ আলাদা করে দেখায়।', 'Each day write how many prayers were in congregation (0 to 5) and how many were missed. The target is always 5 a day, so it does not need to be written in the plan. Missed prayers are shown separately.'],
+  ],
+  [
+    ['যোগাযোগ', 'Contacts'],
+    ['যোগাযোগ মানে উদ্দেশ্যহীন দেখা-সাক্ষাৎ নয়; আন্তরিকভাবে কথা বলা, একে অপরের খোঁজ নেওয়া, সমস্যা বোঝা আর ভালো কাজে উৎসাহ দেওয়া। দুই-চার মিনিটের আলাপের চেয়ে অল্প কয়েকজনকে ঠিক করে নিয়মিত সময় দেওয়া বেশি কাজের।', 'Contact does not mean aimless meetings; it means sincere conversation, asking after one another, understanding problems and encouraging good work. Giving regular time to a few chosen people is worth more than many two-minute chats.'],
+    ['কোন ধরনের কতজনের সাথে যোগাযোগ করলে সেই সংখ্যা লেখো (সদস্য, সাথী, কর্মী, সমর্থক, বন্ধু ইত্যাদি)। মাসের শুরুতে পরিকল্পনায় কার সাথে কতবার যোগাযোগ করবে ঠিক করে রাখো।', 'Write how many people of each kind you contacted (member, sathi, worker, supporter, friend and so on). At the start of the month decide in the plan whom you will contact and how often.'],
+  ],
+  [
+    ['বিতরণ', 'Distribution'],
+    ['বই ও অন্যান্য উপকরণ মানুষের ভুল ধারণা দূর করার সহজ উপায়। কাউকে বই দেওয়ার আগে তার পড়ার আগ্রহ তৈরি করো, আর পরে খোঁজ নাও সে পড়েছে ও বুঝেছে কি না।', 'Books and other materials are a simple way to remove misunderstandings. Before giving someone a book, build their interest in reading it, and afterwards check whether they read and understood it.'],
+    ['কোন উপকরণ কয়টা বিতরণ করলে লেখো: সাহিত্য, পত্রিকা, পরিচিতি, ক্লাস রুটিন, স্টিকার/কার্ড, উপহার ইত্যাদি। ছাপা টেবিলে এগুলো চার কলামে যোগ হয়ে দেখায়।', 'Write how many of each item you distributed: literature, magazines, introduction booklets, class routines, stickers/cards, gifts and so on. In the printed table they are added into four columns.'],
+  ],
+  [
+    ['সাংগঠনিক দায়িত্ব পালন', 'Organisational duties'],
+    ['নিজের ও অন্যের জীবন গঠনের কাজের পাশাপাশি যে দায়িত্ব তোমাকে দেওয়া হয়েছে সেটা ঠিকমতো পালন করাও রিপোর্টের অংশ: সভা, পরিকল্পনা, কাজের তদারকি, অনুষ্ঠানে অংশ নেওয়া, দাওয়াতি কাজ ইত্যাদি।', 'Besides working on your own life and that of others, carrying out the responsibilities given to you is part of the report: meetings, planning, supervising work, joining programmes, dawah work and so on.'],
+    ['দাওয়াতি কাজে আর অন্যান্য সাংগঠনিক কাজে কত ঘণ্টা সময় দিলে আলাদা ঘরে লেখো। মাস শেষে অ্যাপ মোট দিন ও গড় ঘণ্টা বের করে দেয়।', 'Write hours given to dawah work and to other organisational work in separate boxes. At the end of the month the app works out total days and average hours.'],
+  ],
+  [
+    ['পত্রিকা পাঠ', 'Newspaper reading'],
+    ['দেশ ও দুনিয়ায় কী ঘটছে তা জানা একজন সচেতন ছাত্র ও নাগরিকের কাজ। শুধু পড়া নয়, ঘটনাগুলো নিয়ে নিজের মতামত তৈরি করতে শেখো।', 'Knowing what is happening in the country and the world is the work of an aware student and citizen. Do more than read: learn to form your own view of events.'],
+    ['যেদিন পত্রিকা বা সাময়িকী পড়লে সেদিন টিক দাও।', 'Tick the days you read a newspaper or periodical.'],
+  ],
+  [
+    ['শরীরচর্চা', 'Exercise'],
+    ['সুস্বাস্থ্য আল্লাহর একটা নিয়ামত, আর শরীর ভালো থাকলে মন ও কাজ দুটোই ভালো থাকে। প্রতিদিন একটা নির্দিষ্ট সময়ে অল্প হলেও ব্যায়াম বা হাঁটার অভ্যাস করো।', 'Good health is a blessing from Allah, and a healthy body keeps both mind and work in good shape. Make a habit of some exercise or walking at a fixed time every day.'],
+    ['যেদিন শরীরচর্চা করলে সেদিন টিক দাও।', 'Tick the days you exercised.'],
+  ],
+  [
+    ['আত্মসমালোচনা', 'Self-criticism'],
+    ['আত্মসমালোচনা মানে দিনশেষে নিজের সারাদিনের কাজের হিসাব নিজেই নেওয়া: কী ভালো হলো, কোথায় ভুল হলো, কাল কী শুধরাব। এটা করার সময় মনে রাখো, একদিন আল্লাহর সামনে এই হিসাবই দিতে হবে। এর জন্য একটা নির্দিষ্ট সময় ঠিক করে নেওয়া ভালো, যেমন এশার পর বা ঘুমানোর আগে।', 'Self-criticism means taking account of your own day at its end: what went well, where you went wrong, what you will correct tomorrow. While doing it, remember that one day this same account must be given before Allah. A fixed time helps, for example after Isha or before sleep.'],
+    ['যেদিন আত্মসমালোচনা করলে সেদিন টিক দাও। এই অ্যাপে দৈনিক রিপোর্ট লেখার সময়টাই এর জন্য ভালো সুযোগ।', 'Tick the days you did it. The moment you write the daily report in this app is a good time for it.'],
+  ],
 ];
 
 export default function Report() {
@@ -408,24 +456,26 @@ export default function Report() {
       {tab === 'about' && (
         <div className="guide">
           <Card title={L('ব্যক্তিগত রিপোর্ট কেন', 'Why keep a personal report')}>
-            <p>{L('প্রতিদিন নিজের কাজের হিসাব লিখে রাখলে ভুলগুলো চোখে পড়ে আর ধীরে ধীরে জীবন গোছানো হয়। রিপোর্ট হলো আয়নার মতো: নিজেকে দেখার আর শুধরে নেওয়ার উপায়।', 'Writing down what you did each day makes mistakes visible and slowly brings order to life. A report is like a mirror: a way to see yourself and improve.')}</p>
+            <p>{L('জীবনকে গুছিয়ে, পরিকল্পনা করে আর নিয়ম মেনে চালাতে চাইলে সবচেয়ে সহজ ও বাস্তব উপায় হলো প্রতিদিন নিজের কাজের হিসাব লিখে রাখা এবং সেটা পর্যালোচনা করা। লিখে রাখলে ভুলগুলো চোখে পড়ে, আর চোখে পড়লে শুধরে নেওয়া যায়।', 'If you want to live in an organised, planned and disciplined way, the simplest and most practical method is to write down what you do each day and review it. Once written, mistakes become visible, and what is visible can be corrected.')}</p>
+            <p style={{ marginTop: 8 }}>{L('হযরত ওমর (রা.)-এর একটি প্রসিদ্ধ উপদেশের ভাবার্থ: হিসাব দিতে হওয়ার আগে নিজেই নিজের হিসাব নিয়ে নাও।', 'The meaning of a well-known saying of Umar (may Allah be pleased with him): take account of yourself before you are called to account.')}</p>
+            <p style={{ marginTop: 8 }}>{L('রিপোর্ট রাখার লাভ কয়েক দিকে: দ্বীনি জ্ঞান ও সাধারণ জ্ঞান দুটোই বাড়ে, ইবাদত ও চরিত্র উন্নত করার তাগিদ আসে, পড়াশোনায় ভালো করা সহজ হয়, আর শরীর ও মনের যত্ন নেওয়া হয়। রিপোর্ট আয়নার মতো: এতে নিজের ঘাটতি দেখা যায়। আসল উদ্দেশ্য ঘর পূরণ করা নয়, নিজেকে একজন ভালো মানুষ ও আদর্শ কর্মী হিসেবে গড়ে তোলা।', 'Keeping a report helps in several ways: religious and general knowledge both grow, you feel pushed to improve worship and character, doing well in studies becomes easier, and body and mind are cared for. A report is like a mirror: it shows what you lack. The real aim is not filling boxes but building yourself into a good person and a model worker.')}</p>
             <p className="muted" style={{ marginTop: 10 }}>
               {L('ভাবার্থ: "প্রত্যেকে যেন ভেবে দেখে আগামীকালের জন্য সে কী পাঠিয়েছে।" (সূরা আল-হাশর: ১৮)', 'Meaning: "Let every soul consider what it has sent ahead for tomorrow." (Surah Al-Hashr: 18)')}
             </p>
             <p className="muted">{L('ভাবার্থ: "তোমার আমলনামা পড়ো; আজ নিজের হিসাব নেওয়ার জন্য তুমি নিজেই যথেষ্ট।" (সূরা বনি ইসরাইল: ১৪)', 'Meaning: "Read your record; today you yourself are enough to take your own account." (Surah Bani Israil: 14)')}</p>
             <p className="hint" style={{ marginTop: 10 }}>
-              {L('এই পাতার লেখাগুলো সংক্ষিপ্ত সারাংশ। পূর্ণ ব্যাখ্যার জন্য ছাপা রিপোর্ট বই দেখো।', 'The text on this page is a short summary. See the printed report book for the full explanation.')}
+              {L('এই পাতার লেখা ছাপা রিপোর্ট বইয়ের হুবহু কপি নয়, নিজের ভাষায় লেখা ব্যাখ্যা। মূল লেখার জন্য ছাপা বইটা দেখো।', 'The text on this page is not a copy of the printed report book but an explanation in our own words. See the printed book for the original text.')}
             </p>
           </Card>
-          <Card title={L('রিপোর্টের অংশগুলো', 'Parts of the report')}>
-            <ol className="about-list">
-              {ABOUT.map(([title, text]) => (
-                <li key={title[1]}>
-                  <strong>{title[i]}:</strong> {text[i]}
-                </li>
-              ))}
-            </ol>
-          </Card>
+          <h3 className="group-title">{L('রিপোর্টের অংশগুলো', 'Parts of the report')}</h3>
+          {ABOUT.map(([title, why, how], k) => (
+            <Card key={title[1]} title={`${N(k + 1)}. ${title[i]}`}>
+              <p>{why[i]}</p>
+              <p className="about-how">
+                <strong>{L('অ্যাপে যা লিখবে:', 'What to write in the app:')}</strong> {how[i]}
+              </p>
+            </Card>
+          ))}
           <Card title={L('কীভাবে ব্যবহার করবে', 'How to use it')}>
             <ol className="about-list">
               <li>{L('মাসের শুরুতে "মাসিক পরিকল্পনা" লেখো।', 'At the start of the month, write the "Monthly plan".')}</li>

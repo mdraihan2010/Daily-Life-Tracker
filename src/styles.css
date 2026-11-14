@@ -341,6 +341,7 @@ details.card > summary { cursor: pointer; font-weight: 600; }
 .daychips button.is-now { border-color: var(--pri); }
 .daychips button.on { background: var(--pri); border-color: var(--pri); color: var(--pri-ink); }
 .daychips button:disabled { opacity: 0.35; cursor: default; }
+.about-how { margin-top: 8px; padding: 8px 12px; background: var(--bg); border-radius: 8px; font-size: 0.93rem; }
 .about-list { margin: 0; padding-left: 22px; }
 .about-list li { margin-bottom: 8px; }
 
