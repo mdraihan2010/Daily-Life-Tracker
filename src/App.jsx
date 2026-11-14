@@ -92,6 +92,59 @@ function SavedToast() {
   );
 }
 
+// Arrow keys move between boxes, like cells in a spreadsheet:
+// Right/Left jump to the next/previous box once the cursor is at the end/start of the text,
+// Up/Down jump to the box above/below.
+function useArrowKeys() {
+  useEffect(() => {
+    const TEXT = ['text', 'search', 'tel', 'url', 'email'];
+    const onKey = (e) => {
+      const el = e.target;
+      if (!['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
+      if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || e.isComposing) return;
+      if (el.tagName !== 'INPUT' || !TEXT.includes(el.type)) return; // dates, selects and big text areas keep their own arrow keys
+      const boxes = [...document.querySelectorAll('.main input, .main select, .main textarea, .onboard input')].filter(
+        (x) => !x.disabled && !['hidden', 'checkbox', 'file', 'radio'].includes(x.type) && x.offsetParent !== null
+      );
+      const at = boxes.indexOf(el);
+      if (at === -1) return;
+      let next = null;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+        const end = el.value.length;
+        if (el.selectionStart !== el.selectionEnd) return; // some text is selected: let the key collapse it first
+        if (e.key === 'ArrowRight' && el.selectionStart !== end) return;
+        if (e.key === 'ArrowLeft' && el.selectionStart !== 0) return;
+        next = boxes[at + (e.key === 'ArrowRight' ? 1 : -1)];
+      } else {
+        const a = el.getBoundingClientRect();
+        const down = e.key === 'ArrowDown';
+        let best = Infinity;
+        for (const x of boxes) {
+          if (x === el) continue;
+          const b = x.getBoundingClientRect();
+          const dy = down ? b.top - a.bottom : a.top - b.bottom;
+          if (dy < -2) continue; // not above/below
+          const overlap = Math.min(a.right, b.right) - Math.max(a.left, b.left) > 0;
+          const score = (overlap ? 0 : 100000) + dy * 10 + Math.abs(b.left - a.left);
+          if (score < best) {
+            best = score;
+            next = x;
+          }
+        }
+      }
+      if (!next) return;
+      e.preventDefault();
+      next.focus();
+      if (next.tagName === 'INPUT' && TEXT.includes(next.type)) {
+        const pos = e.key === 'ArrowLeft' ? 0 : next.value.length;
+        next.setSelectionRange(pos, pos);
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, []);
+}
+
 function useHash() {
   const read = () => location.hash.replace('#', '') || 'home';
   const [h, setH] = useState(read);
@@ -109,6 +162,7 @@ function useHash() {
 export default function App() {
   const { data, t, lang } = useApp();
   const hash = useHash();
+  useArrowKeys();
   const page = PAGES[hash] ? hash : 'home';
   const Page = PAGES[page];
 
