@@ -31,6 +31,7 @@ export default function Home() {
   const out = sum(month.expense);
   const pct = month.budget > 0 ? Math.round((out / month.budget) * 100) : null;
   const on = (k) => toolOn(data.profile, k);
+  const show = data.profile.dailyShow || {};
   const rep = on('report') ? reportStatus(data, date) : null;
   const nextEvent = data.events.filter((e) => e.date >= date).sort((a, b) => a.date.localeCompare(b.date))[0];
   const nextPlan = data.projects.filter((p) => p.deadline >= date).sort((a, b) => a.deadline.localeCompare(b.deadline))[0];
@@ -65,8 +66,8 @@ export default function Home() {
         </a>
       )}
 
-      {on('daily') && (
-        <section className="card">
+      {on('daily') && show.top && (
+        <section className="card has-head">
           <header className="card-h">
             <div>
               <h3>{t('top3')}</h3>
@@ -96,6 +97,33 @@ export default function Home() {
         </section>
       )}
 
+      {on('daily') && !show.top && (
+        <section className="card has-head">
+          <header className="card-h">
+            <div>
+              <h3>{t('home_todos')}</h3>
+            </div>
+            <a className="btn" href="#daily">
+              {t('d_title')} →
+            </a>
+          </header>
+          {day.todos.length === 0 ? (
+            <p className="muted">
+              {t('home_todos_empty')} <a href="#daily">{t('write_now')}</a>
+            </p>
+          ) : (
+            <ul className="list">
+              {day.todos.map((x, i) => (
+                <li key={x.id} className={x.done ? 'done' : ''}>
+                  <Check on={x.done} label={x.text} onClick={() => update((d) => (ensureDay(d, date).todos[i].done = !x.done))} />
+                  <span>{x.text}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
+
       <div className="stats">
         {on('daily') && (
           <a className="stat" href="#daily">
@@ -118,7 +146,7 @@ export default function Home() {
             <small>{pct === null ? t('no_budget') : t('budget_used', { p: N(pct) })}</small>
           </a>
         )}
-        {on('daily') && (
+        {on('daily') && show.water && (
           <a className="stat" href="#daily">
             <span>{t('water')}</span>
             <strong>{t('glasses', { n: N(day.water) })}</strong>
